@@ -3,7 +3,7 @@
 import { Dancing_Script } from "next/font/google";
 import { useEffect, useState } from "react";
 
-const dancingScript = Dancing_Script({
+export const dancingScript = Dancing_Script({
 	weight: ["400", "500", "600", "700"],
 	subsets: ["latin"],
 });
@@ -18,7 +18,7 @@ const slides = [
 	},
 	{
 		id: 2,
-		image: "/img/img-8.jpg",
+		image: "/img/img-36.jpeg",
 		text: "Wedding Collection",
 		buttonColor: "white",
 		textColor: "#E4B400",
