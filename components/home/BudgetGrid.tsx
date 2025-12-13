@@ -1,7 +1,7 @@
 import React from "react";
 
 const budgetItems = [
-	{ id: 1, image: "/img/img-17.jpg", label: "Under 499" },
+	{ id: 1, image: "/img/img-37.jpeg", label: "Under 499" },
 	{ id: 2, image: "/img/img-13.jpg", label: "Under 999" },
 	{ id: 3, image: "/img/img-2.jpg", label: "Under 1499" },
 	{ id: 4, image: "/img/img-4.jpg", label: "Under 1999" },
