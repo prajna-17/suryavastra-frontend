@@ -1,3 +1,4 @@
+import { robotoSlab } from "@/app/fonts";
 import ProductCard from "../ui/ProductCard";
 import { sarees } from "@/data/data";
 
@@ -22,7 +23,9 @@ export default function BestSeller() {
 
 	return (
 		<>
-			<section className="best-seller-section">
+			<section
+				className={`best-seller-section ${robotoSlab.className}`}
+			>
 				<h2 className="best-title">Best Seller</h2>
 
 				<div className="best-banner">

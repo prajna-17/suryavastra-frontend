@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import React from "react";
-import { dancingScript } from "./BannerSlides";
 
 const sliderItems = [
 	{ id: 1, image: "/img/img-12.jpg", title: "Bandhani Saree" },
@@ -17,7 +16,7 @@ const VideoBannerWithSlider: React.FC = () => {
 		<section className="video-slider-section">
 			<div className="video-banner">
 				<img
-					src="/img/img-25-nobg.jpg"
+					src="/img/img-25-nobg.png"
 					alt="Video Banner"
 					className="video-bg"
 					height={300}
@@ -25,8 +24,8 @@ const VideoBannerWithSlider: React.FC = () => {
 
 				<div className="video-gradient"></div>
 
-				<h2 className={`banner-heading ${dancingScript.className}`}>
-					Sarees as per your choice
+				<h2 className={`banner-heading`}>
+					Sarees As Per Your Choice
 				</h2>
 
 				<img

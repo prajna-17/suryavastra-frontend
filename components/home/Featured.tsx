@@ -1,3 +1,5 @@
+import { roboto, robotoSlab } from "@/app/fonts";
+
 export default function FeaturedCollection() {
 	return (
 		<section className="featured-section">
@@ -7,13 +9,13 @@ export default function FeaturedCollection() {
 			</div>
 
 			{/* Title + Subtitle */}
-			<div className="featured-header">
+			<div className={`featured-header ${robotoSlab.className}`}>
 				<h2>Featured Collection</h2>
 				<p>A Companion For Every Occasion</p>
 			</div>
 
 			{/* Grid Section */}
-			<div className="featured-grid">
+			<div className={`featured-grid ${roboto.className}`}>
 				{/* Left Column */}
 				<div className="grid-col">
 					<div className="grid-img large">

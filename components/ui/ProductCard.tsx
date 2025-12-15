@@ -1,3 +1,5 @@
+import { robotoSlab } from "@/app/fonts";
+
 type Props = {
 	image: string;
 	discount: string;
@@ -26,7 +28,7 @@ export default function ProductCard({
 	};
 
 	return (
-		<div className="product-card">
+		<div className={`product-card ${robotoSlab.className}`}>
 			<div className="product-img-wrap">
 				<img src={image} alt={name} />
 

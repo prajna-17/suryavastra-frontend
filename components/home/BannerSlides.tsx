@@ -1,12 +1,7 @@
 "use client";
 
-import { Dancing_Script } from "next/font/google";
+import { roboto, rougeScript, squarePeg } from "@/app/fonts";
 import { useEffect, useState } from "react";
-
-export const dancingScript = Dancing_Script({
-	weight: ["400", "500", "600", "700"],
-	subsets: ["latin"],
-});
 
 const slides = [
 	{
@@ -15,6 +10,7 @@ const slides = [
 		text: '"Elegance In Every Thread"',
 		buttonColor: "white",
 		textColor: "white",
+		font: squarePeg.className,
 	},
 	{
 		id: 2,
@@ -22,6 +18,9 @@ const slides = [
 		text: "Wedding Collection",
 		buttonColor: "white",
 		textColor: "#E4B400",
+		font: roboto.className,
+		fontWeight: 500,
+		fontStyle: "italic",
 	},
 	{
 		id: 3,
@@ -29,6 +28,8 @@ const slides = [
 		text: "Party Wear",
 		buttonColor: "white",
 		textColor: "#FBADA1",
+		font: rougeScript.className,
+		fontSize: "60px",
 	},
 ];
 
@@ -68,13 +69,19 @@ const BannerFade = () => {
 					</div>
 					<div className="fade-content">
 						<h2
-							style={{ color: slide.textColor }}
-							className={dancingScript.className}
+							style={{
+								color: slide.textColor,
+								fontWeight: slide.fontWeight,
+								fontStyle: slide.fontStyle,
+								fontSize: slide.fontSize,
+							}}
+							className={slide.font}
 						>
 							{slide.text}
 						</h2>
 
 						<button
+							type="button"
 							className="fade-btn"
 							style={{
 								backgroundColor: slide.buttonColor,

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaQuoteLeft, FaStar } from "react-icons/fa";
 
 const testimonials = [
@@ -30,6 +30,12 @@ const testimonials = [
 
 const Testimonials = () => {
 	const [expanded, setExpanded] = useState(false);
+	const [hydrated, setHydrated] = useState(false);
+
+	useEffect(() => {
+		requestAnimationFrame(() => setHydrated(true));
+	}, []);
+
 	return (
 		<>
 			<section className="testimonial-section">
@@ -114,7 +120,7 @@ const Testimonials = () => {
 
 						<p
 							className={`about-text ${
-								expanded ? "expanded" : ""
+								expanded && hydrated ? "expanded" : ""
 							}`}
 						>
 							Surya Vastra is a celebration of timeless
@@ -125,10 +131,15 @@ const Testimonials = () => {
 						</p>
 
 						<button
-							className="about-toggle-btn"
-							onClick={() => setExpanded(!expanded)}
+							type="button"
+							className={`about-toggle-btn ${
+								expanded ? "expanded" : ""
+							}`}
+							onClick={() => setExpanded((v) => !v)}
+							suppressHydrationWarning
 						>
-							{expanded ? "Show Less" : "Show More"}
+							<span className="show-more">Read More</span>
+							<span className="show-less">Read Less</span>
 						</button>
 					</div>
 				</div>
