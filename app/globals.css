@@ -399,6 +399,30 @@
 	height: 80vw;
 	max-height: 260px;
 }
+.wishlist-btn {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: white;
+	border: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	z-index: 5;
+}
+
+.wishlist-btn svg {
+	color: var(--color-dark-red);
+	margin-top: 2px;
+}
+
+.wishlist-btn:hover {
+	transform: scale(1.05);
+}
 
 .product-img-wrap img {
 	width: 100%;
@@ -528,6 +552,7 @@
 	margin-top: 10px;
 	color: var(--color-dark-red);
 	font-weight: 500;
+	padding: 0 10px;
 }
 
 /* Best Seller And Product Cards End */

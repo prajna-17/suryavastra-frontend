@@ -1,4 +1,5 @@
 import { robotoSlab } from "@/app/fonts";
+import { FiHeart } from "react-icons/fi";
 
 type Props = {
 	image: string;
@@ -33,6 +34,14 @@ export default function ProductCard({
 				<img src={image} alt={name} />
 
 				<span className="product-tag">{discount} OFF</span>
+
+				<button
+					type="button"
+					className="wishlist-btn"
+					aria-label="Add to wishlist"
+				>
+					<FiHeart size={20} />
+				</button>
 			</div>
 
 			<h3 className="product-name">{truncate(name)}</h3>
