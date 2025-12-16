@@ -257,11 +257,13 @@
 	height: auto;
 	display: block;
 	border-radius: 0;
+	margin: 10px 0;
 }
 
 .featured-header {
 	text-align: center;
 	padding: 0 16px;
+	margin-bottom: 10px;
 }
 
 .featured-header h2 {
