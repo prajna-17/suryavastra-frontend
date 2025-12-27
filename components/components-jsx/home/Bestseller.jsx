@@ -1,6 +1,7 @@
 import { robotoSlab } from "@/app/fonts";
 import ProductCard from "../ui/ProductCard";
-import { sarees } from "@/data/data";
+import { allProducts } from "@/data/data";
+import Link from "next/link";
 
 export default function BestSeller() {
   const assuranceData = [
@@ -31,14 +32,15 @@ export default function BestSeller() {
         </div>
 
         <div className="best-grid">
-          {sarees.slice(0, 4).map((saree) => (
+          {allProducts.slice(0, 4).map((item) => (
             <ProductCard
-              key={saree.id}
-              image={saree.images[0]}
-              discount={saree.off}
-              name={saree.name}
-              price={saree.discountedPrice}
-              origPrice={saree.price}
+              key={item.id}
+              id={item.id}
+              image={item.images ? item.images[0] : item.image}
+              discount={item.off}
+              name={item.name}
+              price={item.discountedPrice}
+              origPrice={item.price}
             />
           ))}
         </div>
