@@ -36,7 +36,7 @@ export default function SimilarSection() {
         <div className="flex gap-4 overflow-x-auto scrollbar-hide">
           {similarProducts.map((product) => (
             <div key={product.id} className="flex-shrink-0 w-32 h-28">
-              <div className="aspect-[3/4] rounded-md overflow-hidden bg-gray-200">
+              <div className="aspect-[3/4] rounded-md overflow-hidden bg-gray-200 w-31 h-28">
                 <img
                   src={product.image}
                   alt={product.name}

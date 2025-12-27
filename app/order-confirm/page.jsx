@@ -33,7 +33,7 @@ export default function OrderConfirmPage() {
   if (!mounted) return null;
 
   const grandTotal = cartItems.reduce((t, i) => {
-    const price = Number(i.price.replace(/,/g, ""));
+    const price = Number(i.price);
     return t + price * Number(i.qty);
   }, 0);
 
