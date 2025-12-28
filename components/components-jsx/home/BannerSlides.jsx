@@ -2,6 +2,7 @@
 
 import { roboto, rougeScript, squarePeg } from "@/app/fonts";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; // <-- add this
 
 const slides = [
   {
@@ -35,6 +36,7 @@ const slides = [
 
 const BannerFade = () => {
   const [index, setIndex] = useState(0);
+  const router = useRouter(); // <--- router hook
 
   // Auto fade every 4 seconds
   useEffect(() => {
@@ -54,7 +56,7 @@ const BannerFade = () => {
         ))}
       </div>
 
-      {/* Images + Text */}
+      {/* Slides */}
       {slides.map((slide, i) => (
         <div
           key={slide.id}
@@ -64,6 +66,7 @@ const BannerFade = () => {
             <img src={slide.image} alt={slide.text} />
             <div className="fade-gradient"></div>
           </div>
+
           <div className="fade-content">
             <h2
               style={{
@@ -79,10 +82,9 @@ const BannerFade = () => {
 
             <button
               type="button"
+              onClick={() => router.push("/shop")} // 🔥 SHOP PAGE ROUTE HERE
               className="fade-btn"
-              style={{
-                backgroundColor: slide.buttonColor,
-              }}
+              style={{ backgroundColor: slide.buttonColor }}
             >
               Shop Now
             </button>

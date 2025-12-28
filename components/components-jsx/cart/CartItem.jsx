@@ -33,10 +33,16 @@ export default function CartItem({
         <div className="flex-1 space-y-1">
           {/* PRODUCT NAME */}
           <h3 className="text-sm leading-snug">
-            <span className="font-medium">{name.split(" ")[0]}</span>{" "}
-            {name.split(" ").slice(1, 4).join(" ")}
-            <br />
-            {name.split(" ").slice(4).join(" ")}
+            {name ? (
+              <>
+                <span className="font-medium">{name.split(" ")[0]}</span>{" "}
+                {name.split(" ").slice(1, 4).join(" ")}
+                <br />
+                {name.split(" ").slice(4).join(" ")}
+              </>
+            ) : (
+              <span className="font-medium text-gray-500">No Name</span>
+            )}
           </h3>
 
           {/* RATING */}

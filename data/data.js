@@ -272,7 +272,7 @@ export const recentlyViewedProducts = [
     price: 1499,
     oldPrice: 4599,
     rating: 4.9,
-    discount: "68% OFF",
+    discount: "68%",
   },
   {
     id: "rv-2",
@@ -281,7 +281,7 @@ export const recentlyViewedProducts = [
     price: 1499,
     oldPrice: 4599,
     rating: 4.9,
-    discount: "68% OFF",
+    discount: "68%",
   },
   {
     id: "rv-3",
@@ -290,7 +290,7 @@ export const recentlyViewedProducts = [
     price: 1499,
     oldPrice: 4599,
     rating: 4.9,
-    discount: "68% OFF",
+    discount: "68%",
   },
   {
     id: "rv-4",
@@ -299,7 +299,7 @@ export const recentlyViewedProducts = [
     price: 1499,
     oldPrice: 4599,
     rating: 4.9,
-    discount: "68% OFF",
+    discount: "68%",
   },
 ];
 
@@ -367,41 +367,45 @@ export const similarProducts = [
 
 export const youMayAlsoLikeProducts = [
   {
-    id: 1,
+    id: "p-11",
     image: "/img/saree14.jpeg",
     title: "Blue Woven South Saree",
-    price: "₹1499",
-    oldPrice: "₹4599",
+    price: "1499",
+    oldPrice: "4599",
     rating: "4.9",
-    discount: "68% OFF",
+    discount: "68%",
   },
   {
-    id: 2,
+    id: "p-12",
     image: "/img/saree15.jpeg",
     title: "Blue Woven South Saree",
-    price: "₹1499",
-    oldPrice: "₹4599",
+    price: "1499",
+    oldPrice: "4599",
     rating: "4.9",
-    discount: "68% OFF",
+    discount: "68%",
   },
   {
-    id: 3,
+    id: "p-13",
     image: "/img/saree12.jpeg",
     title: "Blue Woven South Saree",
-    price: "₹1499",
-    oldPrice: "₹4599",
+    price: "1499",
+    oldPrice: "4599",
     rating: "4.9",
-    discount: "68% OFF",
+    discount: "68%",
   },
   {
-    id: 4,
+    id: "p-14",
     image: "/img/saree4.jpeg",
     title: "Blue Woven South Saree",
-    price: "₹1499",
-    oldPrice: "₹4599",
+    price: "1499",
+    oldPrice: "4599",
     rating: "4.9",
-    discount: "68% OFF",
+    discount: "68%",
   },
 ];
 
-export const allProducts = [...sarees, ...shopProducts];
+export const allProducts = [
+  ...sarees,
+  ...shopProducts,
+  ...youMayAlsoLikeProducts,
+];

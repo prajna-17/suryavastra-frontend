@@ -1,30 +1,50 @@
 "use client";
-
 import Link from "next/link";
 import { IoMdHeartEmpty } from "react-icons/io";
 import { IoCartOutline } from "react-icons/io5";
 import { LuMenu } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import { getCart } from "@/utils/cart";
+import { getWishlist } from "@/utils/wishlist"; // <-- ADD THIS
 
 function Header() {
   const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0); // <-- NEW
 
   useEffect(() => {
-    const updateCartCount = () => {
-      const cart = getCart();
-      setCartCount(cart.length); // 🔥 only unique items count
+    const updateCounts = () => {
+      setCartCount(getCart().length);
+      setWishlistCount(getWishlist().length);
     };
 
-    updateCartCount(); // initial load
+    updateCounts();
 
-    // 🔥 listen for changes (no refresh required)
-    window.addEventListener("cart-updated", updateCartCount);
-    window.addEventListener("storage", updateCartCount);
+    window.addEventListener("cart-updated", updateCounts);
+    window.addEventListener("wishlist-updated", updateCounts);
+    window.addEventListener("storage", updateCounts);
 
     return () => {
-      window.removeEventListener("cart-updated", updateCartCount);
-      window.removeEventListener("storage", updateCartCount);
+      window.removeEventListener("cart-updated", updateCounts);
+      window.removeEventListener("wishlist-updated", updateCounts);
+      window.removeEventListener("storage", updateCounts);
+    };
+  }, []);
+  const [wishCount, setWishCount] = useState(0);
+
+  useEffect(() => {
+    const updateWish = () => {
+      const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+      setWishCount(wishlist.length);
+    };
+
+    updateWish();
+
+    window.addEventListener("wishlist-updated", updateWish);
+    window.addEventListener("storage", updateWish);
+
+    return () => {
+      window.removeEventListener("wishlist-updated", updateWish);
+      window.removeEventListener("storage", updateWish);
     };
   }, []);
 
@@ -40,8 +60,24 @@ function Header() {
         <img src="/img/logo.png" alt="Logo" className="h-8 w-auto" />
 
         <div className="flex gap-5 items-center">
-          <IoMdHeartEmpty size={24} className="cursor-pointer text-[#6b3430]" />
+          {/* Wishlist Icon with Count */}
+          <div className="relative cursor-pointer">
+            <Link href="/wishlist">
+              <IoMdHeartEmpty
+                id="wishlist-icon"
+                size={24}
+                className="cursor-pointer text-[#6b3430]"
+              />
+            </Link>
 
+            {wishCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-[#6b3430] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-semibold">
+                {wishCount}
+              </span>
+            )}
+          </div>
+
+          {/* Cart Icon */}
           <div className="relative cursor-pointer">
             <Link href="/cart">
               <IoCartOutline
