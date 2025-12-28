@@ -318,11 +318,13 @@
 
 /* Two size ratios */
 .grid-img.large {
-  height: 60vw; /* 60% ratio */
+  height: 60vw;
+  /* 60% ratio */
 }
 
 .grid-img.small {
-  height: 40vw; /* 40% ratio */
+  height: 40vw;
+  /* 40% ratio */
 }
 
 /* Bottom Gradient */
@@ -407,6 +409,7 @@
   height: 80vw;
   max-height: 260px;
 }
+
 .wishlist-btn {
   position: absolute;
   top: 4px;
@@ -791,6 +794,7 @@
   top: 30px;
   left: 20px;
 }
+
 /* CONTENT */
 .testimonial-content {
   flex: 1;
