@@ -5,11 +5,11 @@ import { IoCartOutline } from "react-icons/io5";
 import { LuMenu } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import { getCart } from "@/utils/cart";
-import { getWishlist } from "@/utils/wishlist"; // <-- ADD THIS
+import { getWishlist } from "@/utils/wishlist";
 
 function Header() {
   const [cartCount, setCartCount] = useState(0);
-  const [wishlistCount, setWishlistCount] = useState(0); // <-- NEW
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   useEffect(() => {
     const updateCounts = () => {
@@ -78,11 +78,11 @@ function Header() {
           </div>
 
           {/* Cart Icon */}
-          <div className="relative cursor-pointer">
+          <div className="relative cursor-pointer cart-icon-wrap">
             <Link href="/cart">
               <IoCartOutline
                 size={24}
-                className="hover:scale-110 transition text-[#6b3430]"
+                className="hover:scale-110 transition text-[#6b3430] inline-block transform-gpu cart-icon"
               />
             </Link>
 

@@ -268,7 +268,7 @@ export const recentlyViewedProducts = [
   {
     id: "rv-1",
     image: "/img/saree20.jpeg",
-    title: "Blue Woven South Saree",
+    name: "Blue Woven South Saree",
     price: 1499,
     oldPrice: 4599,
     rating: 4.9,
@@ -277,7 +277,7 @@ export const recentlyViewedProducts = [
   {
     id: "rv-2",
     image: "/img/saree7.jpeg",
-    title: "Blue Woven South Saree",
+    name: "Blue Woven South Saree",
     price: 1499,
     oldPrice: 4599,
     rating: 4.9,
@@ -286,7 +286,7 @@ export const recentlyViewedProducts = [
   {
     id: "rv-3",
     image: "/img/saree10.jpeg",
-    title: "Blue Woven South Saree",
+    name: "Blue Woven South Saree",
     price: 1499,
     oldPrice: 4599,
     rating: 4.9,
@@ -295,7 +295,7 @@ export const recentlyViewedProducts = [
   {
     id: "rv-4",
     image: "/img/saree1.jpeg",
-    title: "Blue Woven South Saree",
+    name: "Blue Woven South Saree",
     price: 1499,
     oldPrice: 4599,
     rating: 4.9,
@@ -369,7 +369,7 @@ export const youMayAlsoLikeProducts = [
   {
     id: "p-11",
     image: "/img/saree14.jpeg",
-    title: "Blue Woven South Saree",
+    name: "Blue Woven South Saree",
     price: "1499",
     oldPrice: "4599",
     rating: "4.9",
@@ -378,7 +378,7 @@ export const youMayAlsoLikeProducts = [
   {
     id: "p-12",
     image: "/img/saree15.jpeg",
-    title: "Blue Woven South Saree",
+    name: "Blue Woven South Saree",
     price: "1499",
     oldPrice: "4599",
     rating: "4.9",
@@ -387,7 +387,7 @@ export const youMayAlsoLikeProducts = [
   {
     id: "p-13",
     image: "/img/saree12.jpeg",
-    title: "Blue Woven South Saree",
+    name: "Blue Woven South Saree",
     price: "1499",
     oldPrice: "4599",
     rating: "4.9",
@@ -396,7 +396,7 @@ export const youMayAlsoLikeProducts = [
   {
     id: "p-14",
     image: "/img/saree4.jpeg",
-    title: "Blue Woven South Saree",
+    name: "Blue Woven South Saree",
     price: "1499",
     oldPrice: "4599",
     rating: "4.9",

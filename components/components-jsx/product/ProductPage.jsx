@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import ProductSearch from "@/components/components-jsx/product/ProductSearch";
 import { FiShare2 } from "react-icons/fi";
 import PromotionCards from "@/components/components-jsx/product/PromotionCards";
@@ -18,9 +18,30 @@ import { productDetails } from "@/data/data";
 import { toggleWishlist, isInWishlist } from "@/utils/wishlist";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 
+//  SMALL FIX FOR HEADER CART POP
+function bounceCartIcon(attempt = 0) {
+  const icon = document.querySelector(".cart-icon");
+
+  if (icon) {
+    icon.classList.add("cart-bounce");
+    setTimeout(() => icon.classList.remove("cart-bounce"), 600);
+    return;
+  }
+
+  // Retry up to 10 times if header not loaded
+  if (attempt < 10) {
+    setTimeout(() => bounceCartIcon(attempt + 1), 150);
+  }
+}
+
 export default function ProductPage({ product }) {
   const base = productDetails[0];
-  const [liked, setLiked] = useState(isInWishlist(product.id));
+  const [liked, setLiked] = useState(false);
+
+  useEffect(() => {
+    setLiked(isInWishlist(product.id));
+  }, []);
+  const [showCartModal, setShowCartModal] = useState(false);
 
   const images = product.images?.length ? product.images : [product.image];
   const colorImages = product.colorImages?.length
@@ -48,11 +69,9 @@ export default function ProductPage({ product }) {
     const heart = document.createElement("div");
     heart.innerHTML = "🤎";
     heart.className = "pop-heart";
-
     const rect = e.currentTarget.getBoundingClientRect();
     heart.style.left = rect.left + "px";
     heart.style.top = rect.top + "px";
-
     document.body.appendChild(heart);
     setTimeout(() => heart.remove(), 700);
   }
@@ -71,12 +90,10 @@ export default function ProductPage({ product }) {
         onTouchEnd={(e) => {
           if (!isDragging.current) return;
           const diff = startX.current - e.changedTouches[0].clientX;
-
           if (diff > 50 && activeIndex < images.length - 1)
             setActiveIndex(activeIndex + 1);
           else if (diff < -50 && activeIndex > 0)
             setActiveIndex(activeIndex - 1);
-
           isDragging.current = false;
         }}
       >
@@ -127,12 +144,10 @@ export default function ProductPage({ product }) {
           </h1>
 
           <div className="flex gap-2">
-            {/* Share */}
             <button className="border rounded-md p-2 text-gray-600">
               <FiShare2 size={16} />
             </button>
 
-            {/* */}
             <button
               className="border rounded-md p-2 text-gray-600 relative"
               onClick={(e) => {
@@ -144,13 +159,11 @@ export default function ProductPage({ product }) {
                   mrp: price,
                   discount: off,
                 });
-
                 setLiked(!liked);
                 popHeart(e);
                 showToast(
                   liked ? "Removed from Wishlist" : "Added to Wishlist"
                 );
-
                 const audio = new Audio("/sounds/pop.mp3");
                 audio.volume = 0.6;
                 audio.play();
@@ -165,7 +178,7 @@ export default function ProductPage({ product }) {
           </div>
         </div>
 
-        {/* Price Section */}
+        {/* Price */}
         <div className="mt-2 flex items-center gap-2">
           <span className="text-gray-400 text-sm">
             MRP{" "}
@@ -213,24 +226,59 @@ export default function ProductPage({ product }) {
           <HiOutlineShoppingBag /> BUY NOW
         </button>
 
-        <button
-          onClick={() =>
-            addToCart({
-              id: product.id,
-              name: product.name,
-              image: product.images?.[0] || product.image,
-              mrp: price,
-              price: discountedPrice,
-              discount: off,
-              rating: 5,
-              deliveryDate: "Monday, 22nd Dec",
-            })
-          }
-          className="flex-1 bg-[#7a3e3e] text-white py-3 rounded flex items-center justify-center gap-2"
-        >
-          <FiShoppingCart /> ADD TO CART
-        </button>
+        <div className="flex-1 relative">
+          <button
+            onClick={(e) => {
+              const wrapper = e.currentTarget.parentElement;
+
+              addToCart({
+                id: product.id,
+                name: product.name,
+                image: product.images?.[0] || product.image,
+                mrp: price,
+                price: discountedPrice,
+                discount: off,
+                rating: 5,
+                deliveryDate: "Monday, 22nd Dec",
+              });
+
+              wrapper.classList.add("cart-anim");
+
+              setTimeout(() => {
+                const audio = new Audio("/sounds/pop.mp3");
+                audio.volume = 0.6;
+                audio.play();
+                wrapper.classList.remove("cart-anim");
+                setShowCartModal(true);
+
+                //  NOW POPS IN HEADER FOR PRODUCT PAGE TOO
+                bounceCartIcon();
+              }, 700);
+            }}
+            className="w-full bg-[#7a3e3e] text-white py-3 rounded flex items-center justify-center gap-2"
+          >
+            <FiShoppingCart /> ADD TO CART
+          </button>
+        </div>
       </div>
+
+      {showCartModal && (
+        <div className={`added-bar show`}>
+          <span className="close-icon" onClick={() => setShowCartModal(false)}>
+            ✕
+          </span>
+          <div className="added-content">
+            <img src={product.images?.[0] || product.image} alt="product" />
+            <span>Added to cart ✔</span>
+          </div>
+          <button
+            className="go-to-cart-btn"
+            onClick={() => (window.location.href = "/cart")}
+          >
+            Go to Cart
+          </button>
+        </div>
+      )}
 
       <SimilarSection />
       <ProductAccordion />

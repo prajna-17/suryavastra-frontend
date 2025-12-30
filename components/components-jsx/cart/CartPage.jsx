@@ -10,6 +10,7 @@ import CouponSection from "./CouponSection";
 import PaymentSummary from "./PaymentSummary";
 import CartFooter from "./CartFooter";
 import TrustBadges from "./TrustBadges";
+import NewAddressPage from "../../../app/new-address/page";
 
 import { getCart, updateQty, removeFromCart } from "@/utils/cart"; // adjust path if needed
 
@@ -38,10 +39,11 @@ export default function CartPage() {
         <CartHeader />
         <DeliveryBox />
 
-        {/* ✅ DYNAMIC CART ITEMS */}
+        {/*  DYNAMIC CART ITEMS */}
         {cartItems.map((item, index) => (
           <CartItem
             key={`${item.id}-${index}`}
+            id={item.id}
             image={item.image}
             name={item.name}
             mrp={item.mrp}

@@ -16,6 +16,8 @@ export default function ProductCard({
   discount,
 }) {
   const [liked, setLiked] = useState(false);
+  const [showCartModal, setShowCartModal] = useState(false);
+
   function showToast(msg) {
     const toast = document.createElement("div");
     toast.className = "wish-toast";
@@ -109,6 +111,7 @@ export default function ProductCard({
         <button
           onClick={(e) => {
             e.stopPropagation();
+
             addToCart({
               id,
               name,
@@ -119,6 +122,27 @@ export default function ProductCard({
               rating: 5,
               deliveryDate: "Monday, 22nd Dec",
             });
+
+            window.dispatchEvent(new Event("cart-updated"));
+
+            // pop/shake effect
+            const btn = e.currentTarget;
+            btn.classList.add("cart-anim");
+
+            setTimeout(() => {
+              const audio = new Audio("/sounds/pop.mp3");
+              audio.volume = 0.6;
+              audio.play();
+              btn.classList.remove("cart-anim");
+              setShowCartModal(true);
+            }, 600);
+
+            //  cart icon pop
+            const icon = document.querySelector(".cart-icon-wrap");
+            if (icon) {
+              icon.classList.add("cart-bounce");
+              setTimeout(() => icon.classList.remove("cart-bounce"), 600);
+            }
           }}
           className="w-full border border-yellow-900 mt-2 py-1 text-[11px] rounded"
           style={{ color: "var(--color-brown)" }}
@@ -126,6 +150,25 @@ export default function ProductCard({
           ADD TO CART
         </button>
       </div>
+      {showCartModal && (
+        <div className="added-bar show">
+          <span className="close-icon" onClick={() => setShowCartModal(false)}>
+            ✕
+          </span>
+
+          <div className="added-content">
+            <img src={image} alt="product" />
+            <span>Added to cart ✔</span>
+          </div>
+
+          <button
+            className="go-to-cart-btn"
+            onClick={() => (window.location.href = "/cart")}
+          >
+            Go to Cart
+          </button>
+        </div>
+      )}
     </div>
   );
 }

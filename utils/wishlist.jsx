@@ -9,7 +9,18 @@ export const addToWishlist = (product) => {
   const exists = wishlist.find((item) => item.id === product.id);
 
   if (!exists) {
-    wishlist.push(product);
+    wishlist.push({
+      id: product.id,
+      name:
+        product.name ||
+        product.title ||
+        product.productName ||
+        "Unnamed Product",
+      image: product.image,
+      price: product.price,
+      mrp: product.mrp,
+      discount: product.discount,
+    });
     localStorage.setItem("wishlist", JSON.stringify(wishlist));
     window.dispatchEvent(new Event("wishlist-updated"));
   }
@@ -22,7 +33,7 @@ export const removeFromWishlist = (id) => {
   window.dispatchEvent(new Event("wishlist-updated"));
 };
 
-// ⭐ TOGGLE LOGIC ADDED (add/remove in single click)
+//  TOGGLE LOGIC ADDED (add/remove in single click)
 export const toggleWishlist = (product) => {
   const wishlist = getWishlist();
   const exists = wishlist.find((item) => item.id === product.id);

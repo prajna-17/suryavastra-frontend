@@ -45,9 +45,15 @@ export default function NewAddressPage() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) return;
-
     localStorage.setItem("userAddress", JSON.stringify(form));
-    router.push("/order");
+
+    const fromCart = window.location.search.includes("from=cart");
+
+    if (fromCart) {
+      router.push("/cart"); // come back to cart page
+    } else {
+      router.push("/order"); // continue normal flow
+    }
   };
   // Load previous saved address if exists
   useEffect(() => {

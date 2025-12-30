@@ -15,14 +15,18 @@ export default function CartItem({
   onDecrease,
   onRemove,
 }) {
+  const safeName = name ? name.toString() : "product";
+  const safeId = `cart-${safeName.replace(/\s/g, "")}`;
+
   return (
     <div
-      className={`bg-white rounded-xl shadow-md p-3 space-y-3 mt-6 ${roboto.className}`}
+      id={safeId}
+      className={`cart-item bg-white rounded-xl shadow-md p-3 space-y-3 mt-6 ${roboto.className}`}
     >
       <div className="flex gap-3">
         <Image
           src={image}
-          alt={name}
+          alt={name || "Product"}
           width={90}
           height={120}
           priority
@@ -53,8 +57,12 @@ export default function CartItem({
           {/* PRICE */}
           <div className="text-sm">
             <span className="text-gray-400 mr-2">MRP</span>
-            <span className="line-through text-gray-400 mr-2">₹{mrp}</span>
-            <span className="font-semibold">₹{price}</span>
+            <span className="line-through text-gray-400 mr-2">
+              ₹{mrp.toLocaleString("en-IN")}
+            </span>
+            <span className="font-semibold">
+              ₹{price.toLocaleString("en-IN")}
+            </span>
 
             <span className="ml-2 px-2 py-[2px] text-[10px] font-semibold text-[#f1e9e8] bg-[#d4685a] rounded-full">
               {discount} OFF
@@ -62,12 +70,29 @@ export default function CartItem({
           </div>
 
           {/* QTY */}
+          {/* QTY */}
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-600">Qty:</span>
 
-            <div className="flex items-center border border-[#6b3f36] rounded-md overflow-hidden">
+            <div className="qty-box flex items-center border border-[#6b3f36] rounded-md overflow-hidden">
               <button
-                onClick={onDecrease}
+                onClick={(e) => {
+                  onDecrease();
+                  const box = e.currentTarget.parentElement;
+                  box.classList.add("qty-pop");
+
+                  // sound
+                  const audio = new Audio("/sounds/pop.mp3");
+                  audio.volume = 0.4;
+                  audio.play();
+
+                  setTimeout(() => box.classList.remove("qty-pop"), 200);
+
+                  // bounce cart icon
+                  const icon = document.querySelector(".cart-icon");
+                  icon?.classList.add("cart-bounce");
+                  setTimeout(() => icon?.classList.remove("cart-bounce"), 400);
+                }}
                 className="px-2 py-[2px] text-sm text-[#6b3f36] bg-[#f1b8ac]"
               >
                 −
@@ -76,7 +101,21 @@ export default function CartItem({
               <span className="px-2 text-xs">{qty}</span>
 
               <button
-                onClick={onIncrease}
+                onClick={(e) => {
+                  onIncrease();
+                  const box = e.currentTarget.parentElement;
+                  box.classList.add("qty-pop");
+
+                  const audio = new Audio("/sounds/pop.mp3");
+                  audio.volume = 0.4;
+                  audio.play();
+
+                  setTimeout(() => box.classList.remove("qty-pop"), 200);
+
+                  const icon = document.querySelector(".cart-icon");
+                  icon?.classList.add("cart-bounce");
+                  setTimeout(() => icon?.classList.remove("cart-bounce"), 400);
+                }}
                 className="px-2 py-[2px] text-sm text-[#6b3f36] bg-[#f1b8ac]"
               >
                 +
@@ -97,12 +136,87 @@ export default function CartItem({
 
       {/* ACTIONS */}
       <div className="flex border-t pt-2 border-[#6b3f36]">
-        <button className="flex-1 flex items-center justify-center gap-2 text-xs">
+        <button
+          onClick={() => {
+            const box = document.getElementById(
+              `cart-${safeName.replace(/\s/g, "")}`
+            );
+
+            // Add to Wishlist ❤️
+            import("@/utils/wishlist").then(({ toggleWishlist }) => {
+              toggleWishlist({
+                id: safeId,
+                name,
+                image,
+                price,
+                mrp,
+                discount,
+              });
+            });
+
+            // Pop sound
+            const audio = new Audio("/sounds/pop.mp3");
+            audio.volume = 0.6;
+            audio.play();
+
+            // Heart popup animation
+            const heart = document.createElement("div");
+            heart.innerHTML = "🤎";
+            heart.className = "pop-heart";
+            heart.style.position = "absolute";
+            heart.style.bottom = "10px";
+            heart.style.right = "50%";
+            heart.style.fontSize = "22px";
+            heart.style.animation = "popJump .7s ease forwards";
+            box.appendChild(heart);
+            setTimeout(() => heart.remove(), 800);
+
+            // Slide right animation
+            box.classList.add("slide-wish");
+
+            setTimeout(() => {
+              onRemove(); // remove from cart
+              window.dispatchEvent(new Event("wishlist-updated"));
+            }, 400);
+          }}
+          className="flex-1 flex items-center justify-center gap-2 text-xs"
+        >
           <Heart size={16} /> Move to Wishlist
         </button>
 
         <button
-          onClick={onRemove}
+          onClick={() => {
+            const confirmBox = document.createElement("div");
+            confirmBox.className = "confirm-remove-box";
+            confirmBox.innerHTML = `
+      <div class="confirm-text">Remove item from cart?</div>
+      <div class="confirm-actions">
+          <button class="confirm-yes">Yes</button>
+          <button class="confirm-no">No</button>
+      </div>
+  `;
+            document.body.appendChild(confirmBox);
+
+            // When YES is clicked
+            confirmBox.querySelector(".confirm-yes").onclick = () => {
+              const item = document.getElementById(
+                `cart-${name.replace(/\s/g, "")}`
+              );
+              item?.classList.add("slide-remove");
+
+              const audio = new Audio("/sounds/pop.mp3");
+              audio.volume = 0.6;
+              audio.play();
+
+              setTimeout(() => onRemove(), 400);
+              confirmBox.remove();
+            };
+
+            // When NO is clicked
+            confirmBox.querySelector(".confirm-no").onclick = () => {
+              confirmBox.remove();
+            };
+          }}
           className="flex-1 flex items-center justify-center gap-2 text-xs border-l border-[#6b3f36]"
         >
           <Trash2 size={16} /> Remove

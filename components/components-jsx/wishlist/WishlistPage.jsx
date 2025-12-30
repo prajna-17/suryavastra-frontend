@@ -13,13 +13,25 @@ export default function WishlistPage() {
   const router = useRouter();
 
   const [wishlist, setWishlist] = useState([]);
+  const [showCartModal, setShowCartModal] = useState({
+    show: false,
+    item: null,
+  });
 
   useEffect(() => {
     setWishlist(getWishlist());
   }, []);
 
   const moveToCart = (item) => {
-    addToCart(item);
+    addToCart({
+      id: item.id,
+      name: item.name || item.title || "Unnamed Product", // ⭐ important
+      image: item.image,
+      price: item.price,
+      mrp: item.mrp,
+      discount: item.discount,
+    });
+
     removeFromWishlist(item.id);
     setWishlist(getWishlist());
   };
@@ -86,7 +98,7 @@ export default function WishlistPage() {
               className="bg-white border border-gray-200 rounded-lg flex flex-col overflow-hidden"
             >
               {/* IMAGE SECTION */}
-              <div className="relative aspect-[4/5] w-full">
+              <div className="relative aspect-[4/5] w-full cursor-pointer">
                 <Image
                   src={item.image}
                   alt={item.name}
@@ -112,7 +124,7 @@ export default function WishlistPage() {
 
               {/* TEXT + PRICE SECTION */}
               <div className="p-2 flex flex-col flex-grow">
-                <p className="text-sm leading-tight min-h-[32px]">
+                <p className="text-sm leading-tight min-h-[32px] cursor-pointer">
                   <span className="font-semibold">
                     {item.name?.split(" ")[0] ||
                       item.title?.split(" ")[0] ||
@@ -134,12 +146,79 @@ export default function WishlistPage() {
                 </div>
 
                 {/* BUTTON */}
-                <button
-                  onClick={() => moveToCart(item)}
-                  className="w-full border border-[#6b3c32] text-[#6b3c32] mt-auto py-1 text-[11px] rounded font-medium"
-                >
-                  MOVE TO CART
-                </button>
+                {/* BUTTON */}
+                <div className="relative w-full">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      const btn = e.currentTarget;
+
+                      // 1. Animation POP
+                      btn.classList.add("cart-anim");
+                      setTimeout(() => btn.classList.remove("cart-anim"), 600);
+
+                      // 2. Sound
+                      const pop = new Audio("/sounds/pop.mp3");
+                      pop.volume = 0.6;
+                      pop.play();
+
+                      // 3. Add to Cart immediately
+                      addToCart({
+                        id: item.id,
+                        name: item.name,
+                        image: item.image,
+                        mrp: Number(item.mrp),
+                        price: Number(item.price),
+                        discount: item.discount,
+                      });
+
+                      // 4. Little delay so animation plays first
+                      setTimeout(() => {
+                        // fade/slide remove class
+                        const card = btn.closest(".bg-white");
+                        card.style.transition =
+                          "opacity .45s ease, transform .45s ease";
+                        card.style.opacity = "0";
+                        card.style.transform = "translateY(10px)";
+
+                        setTimeout(() => {
+                          removeFromWishlist(item.id);
+                          setWishlist(getWishlist());
+                          setShowCartModal({ show: true, item });
+                        }, 450); // remove AFTER fade
+                      }, 600); // waits for button pop to finish
+                    }}
+                    className="w-full border border-[#6b3c32] text-[#6b3c32] py-1 text-[11px] rounded font-medium"
+                  >
+                    MOVE TO CART
+                  </button>
+                </div>
+
+                {showCartModal.show && (
+                  <div className="added-bar show">
+                    <span
+                      className="close-icon"
+                      onClick={() =>
+                        setShowCartModal({ show: false, item: null })
+                      }
+                    >
+                      ✕
+                    </span>
+
+                    <div className="added-content">
+                      <img src={showCartModal.item?.image} alt="product" />
+                      <span>Added to cart ✔</span>
+                    </div>
+
+                    <button
+                      className="go-to-cart-btn"
+                      onClick={() => (window.location.href = "/cart")}
+                    >
+                      Go to Cart
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}

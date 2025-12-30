@@ -42,7 +42,7 @@ export default function YouMayAlsoLike() {
     toggleWishlist({
       id: p.id,
       image: p.image,
-      name: p.title || p.name || "", // prevents undefined
+      name: p.name || "", // prevents undefined
       price: p.price,
       mrp: p.oldPrice,
       discount: p.discount,
@@ -77,7 +77,7 @@ export default function YouMayAlsoLike() {
             <div className="relative">
               <img
                 src={p.image}
-                alt={p.title}
+                alt={p.name}
                 className="w-full h-[220px] object-cover"
               />
 
@@ -109,7 +109,7 @@ export default function YouMayAlsoLike() {
 
               {/* Text Box */}
               <div className="absolute bottom-0 left-0 right-0 px-2 py-2 bg-black/30">
-                <p className="text-xs font-medium text-white">{p.title}</p>
+                <p className="text-xs font-medium text-white">{p.name}</p>
 
                 <div className="flex items-center gap-2 text-xs text-white mt-1">
                   <span className="font-semibold">

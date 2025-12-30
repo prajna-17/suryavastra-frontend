@@ -211,9 +211,11 @@
   pointer-events: none;
   z-index: 2;
 
-  background: radial-gradient(ellipse at center,
+  background: radial-gradient(
+      ellipse at center,
       rgba(0, 0, 0, 0) 40%,
-      rgba(100, 53, 51, 0.65) 100%),
+      rgba(100, 53, 51, 0.65) 100%
+    ),
     linear-gradient(to top, rgba(100, 53, 51, 0.55), rgba(100, 53, 51, 0));
 }
 
@@ -334,9 +336,11 @@
   height: 100%;
   pointer-events: none;
 
-  background: linear-gradient(to top,
-      rgba(100, 53, 51, 0.7),
-      rgba(100, 53, 51, 0));
+  background: linear-gradient(
+    to top,
+    rgba(100, 53, 51, 0.7),
+    rgba(100, 53, 51, 0)
+  );
   z-index: 2;
 }
 
@@ -641,11 +645,13 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at center,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0) 45%,
-      rgba(60, 30, 30, 0.5) 70%,
-      rgba(0, 0, 0, 0.85) 100%);
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(60, 30, 30, 0.5) 70%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
   z-index: 7;
 }
 
@@ -859,10 +865,12 @@
   height: 230px;
   pointer-events: none;
 
-  background: radial-gradient(circle at center,
-      rgba(100, 53, 51, 0) 0%,
-      rgba(100, 53, 51, 0.35) 60%,
-      rgba(100, 53, 51, 0.65) 100%);
+  background: radial-gradient(
+    circle at center,
+    rgba(100, 53, 51, 0) 0%,
+    rgba(100, 53, 51, 0.35) 60%,
+    rgba(100, 53, 51, 0.65) 100%
+  );
 
   z-index: 2;
 }
@@ -1295,4 +1303,250 @@
   font-size: 22px;
   animation: heartPop 0.7s ease-out forwards;
   pointer-events: none;
+}
+
+/* Add to cart pop animation */
+/* Bottom modal */
+/* ✨ CART MODAL ✨ */
+.cart-modal {
+  position: fixed;
+  bottom: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 15px 20px;
+  width: 90%;
+  text-align: center;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  font-size: 15px;
+  z-index: 9999;
+  transition: bottom 0.35s ease;
+}
+
+.cart-modal.show {
+  bottom: 0;
+}
+
+/* ✨ SHAKE + GROW ANIMATION ✨*/
+@keyframes popShake {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.15);
+  }
+  60% {
+    transform: scale(1.15) rotate(1.5deg);
+  }
+  80% {
+    transform: scale(1.15) rotate(-1.5deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cart-anim {
+  animation: popShake 0.7s ease forwards;
+  transform-origin: center;
+}
+.added-bar {
+  position: fixed;
+  bottom: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  background: #ffffff;
+  color: #7a3e3e;
+  padding: 16px;
+  border-radius: 14px 14px 0 0;
+  transition: bottom 0.35s ease;
+  z-index: 9999;
+}
+
+/* THIS is what makes modal appear */
+.added-bar.show {
+  bottom: 0 !important;
+}
+
+.added-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.added-content img {
+  width: 48px;
+  height: 65px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: white;
+}
+
+.added-content span {
+  font-weight: 650;
+  color: #7a3e3e;
+}
+
+/* Close button */
+.close-icon {
+  position: absolute;
+  right: 14px;
+  top: 30px;
+  font-size: 19px;
+  color: #fff;
+  background: #7a3e3e;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Go to cart */
+.go-to-cart-btn {
+  width: 100%;
+  background: #7a3e3e;
+  color: white;
+  padding: 11px 0;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+.cart-bounce {
+  animation: cartPop 0.45s cubic-bezier(0.31, 1.4, 0.56, 1.27);
+}
+
+@keyframes cartPop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.35);
+  }
+  70% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Remove confirmation popup */
+.confirm-remove-box {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 18px 24px;
+  border-radius: 10px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+  z-index: 99999;
+  text-align: center;
+  font-size: 14px;
+  width: 240px;
+  animation: popIn 0.3s ease;
+}
+
+.confirm-text {
+  font-weight: 600;
+  color: #6b3f36;
+  margin-bottom: 12px;
+}
+
+/* Buttons inside popup */
+.confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.confirm-yes,
+.confirm-no {
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.confirm-yes {
+  background: #6b3f36;
+  color: white;
+}
+
+.confirm-no {
+  background: #f3d6d1;
+  color: #6b3f36;
+}
+
+/* Remove animation */
+.cart-item.slide-remove {
+  animation: slideOut 0.4s ease forwards;
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+/* Move to wishlist slide */
+.cart-item {
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.cart-item.slide-wish {
+  transform: translateX(50px);
+  opacity: 0;
+}
+/* Qty Pop Animation */
+.qty-pop {
+  transform: scale(1.15);
+  transition: transform 0.2s ease;
+}
+.wish-remove {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+@keyframes wishCartPop {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.15);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.wish-cart-anim {
+  animation: wishCartPop 0.6s ease;
+  transform-origin: center;
+}
+.cart-anim-btn {
+  transform-origin: center;
 }

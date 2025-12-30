@@ -42,7 +42,7 @@ export default function RecentlyViewed() {
     toggleWishlist({
       id: p.id,
       image: p.image,
-      name: p.title,
+      name: p.name,
       price: p.price,
       mrp: p.oldPrice,
       discount: p.discount,
@@ -79,7 +79,7 @@ export default function RecentlyViewed() {
             <div className="relative">
               <img
                 src={p.image}
-                alt={p.title}
+                alt={p.name}
                 className="w-full h-[220px] object-cover"
               />
 
@@ -111,7 +111,7 @@ export default function RecentlyViewed() {
 
               {/* Title & Price */}
               <div className="absolute bottom-0 left-0 right-0 px-2 py-1 bg-black/30">
-                <p className="text-xs font-medium text-white">{p.title}</p>
+                <p className="text-xs font-medium text-white">{p.name}</p>
 
                 <div className="flex items-center gap-2 text-xs text-white mt-1">
                   <span className="font-semibold">

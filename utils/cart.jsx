@@ -17,18 +17,18 @@ export const addToCart = (product) => {
 
   localStorage.setItem("cart", JSON.stringify(cart));
 
-  // 🔥 notify header to update immediately
+  // notify header to update immediately
   window.dispatchEvent(new Event("cart-updated"));
 };
 
 export const updateQty = (id, qty) => {
   const cart = getCart().map((i) => (i.id === id ? { ...i, qty } : i));
   localStorage.setItem("cart", JSON.stringify(cart));
-  window.dispatchEvent(new Event("cart-updated")); // 🔥
+  window.dispatchEvent(new Event("cart-updated"));
 };
 
 export const removeFromCart = (id) => {
   const cart = getCart().filter((i) => i.id !== id);
   localStorage.setItem("cart", JSON.stringify(cart));
-  window.dispatchEvent(new Event("cart-updated")); // 🔥
+  window.dispatchEvent(new Event("cart-updated"));
 };

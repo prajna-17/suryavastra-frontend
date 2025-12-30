@@ -15,6 +15,8 @@ export default function ProductCard({
   origPrice,
 }) {
   const [liked, setLiked] = useState(false);
+  const [showCartModal, setShowCartModal] = useState(false);
+
   function showToast(msg) {
     const toast = document.createElement("div");
     toast.className = "wish-toast";
@@ -113,13 +115,52 @@ export default function ProductCard({
         <button
           onClick={(e) => {
             e.stopPropagation();
+
             addToCart({ id, name, image, price, mrp: origPrice, discount });
+
+            const card = e.currentTarget;
+            card.classList.add("cart-anim");
+
+            setTimeout(() => {
+              const pop = new Audio("/sounds/pop.mp3");
+              pop.volume = 0.6;
+              pop.play();
+
+              card.classList.remove("cart-anim");
+              setShowCartModal(true);
+
+              //  Bounce header cart icon
+              const icon = document.querySelector(".cart-icon");
+              if (icon) {
+                icon.classList.add("cart-bounce");
+                setTimeout(() => icon.classList.remove("cart-bounce"), 600);
+              }
+            }, 600);
           }}
           className="w-full border border-[#6b3c32] mt-2 py-1 text-[11px] rounded text-[#6b3c32]"
         >
           ADD TO CART
         </button>
       </div>
+      {showCartModal && (
+        <div className="added-bar show">
+          <span className="close-icon" onClick={() => setShowCartModal(false)}>
+            ✕
+          </span>
+
+          <div className="added-content">
+            <img src={image} alt="product" />
+            <span>Added to cart ✔</span>
+          </div>
+
+          <button
+            className="go-to-cart-btn"
+            onClick={() => (window.location.href = "/cart")}
+          >
+            Go to Cart
+          </button>
+        </div>
+      )}
     </div>
   );
 }
