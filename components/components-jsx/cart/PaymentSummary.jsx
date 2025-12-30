@@ -2,6 +2,7 @@
 import { roboto } from "@/app/fonts";
 import { getCart } from "@/utils/cart";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function PaymentSummary() {
   const [cart, setCart] = useState([]);
@@ -29,10 +30,10 @@ export default function PaymentSummary() {
   return (
     <div className={`space-y-3 ${roboto.className} mt-10`}>
       <h3 className="font-medium text-sm flex items-center gap-2">
-        💳 Payment Details (
+        <Image src="/img/pay-emo.png" alt="card" width={16} height={16} />
+        Payment Details (
         <span className="text-gray-400">{cart.length} Items</span>)
       </h3>
-
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
           <span>Sub Total</span>
@@ -58,7 +59,6 @@ export default function PaymentSummary() {
           <span>₹ {grandTotal.toLocaleString("en-IN")}</span>
         </div>
       </div>
-
       <div
         className="bg-[#f3dfdb] text-xs text-center py-2 rounded font-medium mt-5"
         style={{ color: "var(--color-dark-brown)" }}

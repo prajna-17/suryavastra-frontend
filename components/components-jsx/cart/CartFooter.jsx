@@ -7,7 +7,10 @@ export default function CartFooter() {
 
   return (
     <div
-      onClick={() => router.push("/auth")}
+      onClick={() => {
+        localStorage.removeItem("checkoutProduct"); // clear buy now data
+        router.push("/auth"); // continue full cart flow
+      }}
       className={`${roboto.className} rounded-lg fixed bottom-4 left-4 right-4 px-4 bg-[#591b16] text-white py-4 text-center font-semibold cursor-pointer active:scale-95`}
     >
       PLACE ORDER

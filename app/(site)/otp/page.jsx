@@ -77,8 +77,8 @@ export default function OtpPage() {
 
       {/* REGISTER SECTION (after Verify)*/}
       {showRegister && (
-        <div className="w-full flex flex-col items-center py-2 ">
-          <select className="border border-[#6b3430] rounded-md p-3 w-[95%] mt-6 text-sm focus:outline-none font-semibold">
+        <div className="w-[95%] flex flex-col items-center py-2  ">
+          <select className="border border-[#6b3430] rounded-md p-3  mt-6 text-sm focus:outline-none font-semibold">
             <option>Title</option>
             <option>Mr.</option>
             <option>Ms.</option>

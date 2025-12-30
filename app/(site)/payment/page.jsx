@@ -14,15 +14,25 @@ export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState([]);
   const [hydrated, setHydrated] = useState(false);
 
+  // ⬇⬇ Only this part updated
   useEffect(() => {
-    setCartItems(getCart());
+    const checkoutProduct = JSON.parse(localStorage.getItem("checkoutProduct"));
+
+    if (checkoutProduct) {
+      setCartItems([checkoutProduct]); // Buy Now → Single product checkout
+    } else {
+      setCartItems(getCart()); // Normal → All cart items
+    }
+
     setHydrated(true);
   }, []);
+  // ⬆⬆ Nothing else touched
 
   if (!hydrated) return null;
 
-  const grandTotal = cartItems.reduce((t, i) => t + i.price * i.qty, 0);
-  const mrpTotal = cartItems.reduce((t, i) => t + i.mrp * i.qty, 0);
+  // ⬇ qty fallback added (ONLY change here)
+  const grandTotal = cartItems.reduce((t, i) => t + i.price * (i.qty ?? 1), 0);
+  const mrpTotal = cartItems.reduce((t, i) => t + i.mrp * (i.qty ?? 1), 0);
   const discount = mrpTotal - grandTotal;
 
   return (
@@ -53,7 +63,7 @@ export default function CheckoutPage() {
         <button className="w-full border border-[#833630] rounded-lg p-3 flex items-center justify-between">
           <span className="flex items-center gap-2">
             <Image
-              src="/icons/card.png"
+              src="/img/atm-card 1.png"
               width={30}
               height={30}
               alt="Card"
@@ -73,11 +83,19 @@ export default function CheckoutPage() {
 
         <div className="border border-[#833630] rounded-lg p-4 space-y-4">
           <div className="flex justify-between text-center">
-            {["SBI", "HDFC", "ICICI", "AXIS"].map((bank) => (
-              <button key={bank} className="flex flex-col items-center gap-1">
+            {[
+              { name: "SBI", img: "/banks/SBI.png" },
+              { name: "HDFC", img: "/banks/HDFC.jpeg" },
+              { name: "ICICI", img: "/banks/ICICI.jpeg" },
+              { name: "AXIS", img: "/banks/AXIS.jpeg" },
+            ].map((bank) => (
+              <button
+                key={bank.name}
+                className="flex flex-col items-center gap-1"
+              >
                 <Image
-                  src={`/banks/${bank}.png`}
-                  alt={bank}
+                  src={bank.img}
+                  alt={bank.name}
                   width={45}
                   height={45}
                   unoptimized
@@ -85,7 +103,7 @@ export default function CheckoutPage() {
                 <span
                   className={`text-xs font-medium text-[#080808] ${robotoSlab.className}`}
                 >
-                  {bank}
+                  {bank.name}
                 </span>
               </button>
             ))}

@@ -6,17 +6,19 @@ import { LuMenu } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import { getCart } from "@/utils/cart";
 import { getWishlist } from "@/utils/wishlist";
+import SideMenu from "./SideMenu"; // <-- Added
 
 function Header() {
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
+
+  const [menuOpen, setMenuOpen] = useState(false); // <-- Added
 
   useEffect(() => {
     const updateCounts = () => {
       setCartCount(getCart().length);
       setWishlistCount(getWishlist().length);
     };
-
     updateCounts();
 
     window.addEventListener("cart-updated", updateCounts);
@@ -29,6 +31,7 @@ function Header() {
       window.removeEventListener("storage", updateCounts);
     };
   }, []);
+
   const [wishCount, setWishCount] = useState(0);
 
   useEffect(() => {
@@ -36,7 +39,6 @@ function Header() {
       const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
       setWishCount(wishlist.length);
     };
-
     updateWish();
 
     window.addEventListener("wishlist-updated", updateWish);
@@ -49,52 +51,58 @@ function Header() {
   }, []);
 
   return (
-    <header className="w-full bg-white sticky top-0 z-[9999] shadow-md">
-      <div className="header-banner text-center bg-[#f5e0d8] py-1 text-sm text-[#6b3430]">
-        Enjoy extra 10% off on your first purchase
-      </div>
+    <>
+      <header className="w-full bg-white sticky top-0 z-[9999] shadow-md">
+        <div className="header-banner text-center bg-[#f5e0d8] py-1 text-sm text-[#6b3430]">
+          Enjoy extra 10% off on your first purchase
+        </div>
 
-      <div className="header-icons flex items-center justify-between px-4 py-3">
-        <LuMenu size={26} className="cursor-pointer text-[#6b3430]" />
+        <div className="header-icons flex items-center justify-between px-4 py-3">
+          {/* Menu Button */}
+          <LuMenu
+            size={26}
+            className="cursor-pointer text-[#6b3430]"
+            onClick={() => setMenuOpen(true)} // <-- Added
+          />
 
-        <img src="/img/logo.png" alt="Logo" className="h-8 w-auto" />
+          <img src="/img/logo.png" alt="Logo" className="h-8 w-auto" />
 
-        <div className="flex gap-5 items-center">
-          {/* Wishlist Icon with Count */}
-          <div className="relative cursor-pointer">
-            <Link href="/wishlist">
-              <IoMdHeartEmpty
-                id="wishlist-icon"
-                size={24}
-                className="cursor-pointer text-[#6b3430]"
-              />
-            </Link>
+          <div className="flex gap-5 items-center">
+            <div className="relative cursor-pointer">
+              <Link href="/wishlist">
+                <IoMdHeartEmpty
+                  id="wishlist-icon"
+                  size={24}
+                  className="cursor-pointer text-[#6b3430]"
+                />
+              </Link>
+              {wishCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#6b3430] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-semibold">
+                  {wishCount}
+                </span>
+              )}
+            </div>
 
-            {wishCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-[#6b3430] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-semibold">
-                {wishCount}
-              </span>
-            )}
-          </div>
-
-          {/* Cart Icon */}
-          <div className="relative cursor-pointer cart-icon-wrap">
-            <Link href="/cart">
-              <IoCartOutline
-                size={24}
-                className="hover:scale-110 transition text-[#6b3430] inline-block transform-gpu cart-icon"
-              />
-            </Link>
-
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-[#6b3430] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-semibold shadow">
-                {cartCount}
-              </span>
-            )}
+            <div className="relative cursor-pointer cart-icon-wrap">
+              <Link href="/cart">
+                <IoCartOutline
+                  size={24}
+                  className="hover:scale-110 transition text-[#6b3430] inline-block transform-gpu cart-icon"
+                />
+              </Link>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#6b3430] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-semibold shadow">
+                  {cartCount}
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Menu Component */}
+      <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+    </>
   );
 }
 

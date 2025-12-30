@@ -23,8 +23,8 @@ export default function AuthPage() {
       </p>
 
       {/* Input Box */}
-      <div className="flex items-center gap-5 mt-8 w-85">
-        <select className="border rounded-md border-[#6b3430] p-2 w-25 focus:outline-none self-start">
+      <div className="flex items-center gap-5 mt-8 w-90 border-[#6b3430]">
+        <select className="border rounded-md border-[#6b3430] p-2 w-5 focus:outline-none self-start">
           <option>+91</option>
         </select>
 

@@ -13,9 +13,17 @@ export default function OrderPage() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setCartItems(getCart());
+    const single = JSON.parse(localStorage.getItem("checkoutProduct"));
+
+    if (single) {
+      setCartItems([single]); // BUY NOW → single product
+    } else {
+      setCartItems(getCart()); // CART → full items
+    }
+
     const saved = localStorage.getItem("userAddress");
     if (saved) setAddress(JSON.parse(saved));
+
     setHydrated(true);
   }, []);
 
@@ -25,8 +33,9 @@ export default function OrderPage() {
     setCartItems(getCart());
   };
 
-  const grandTotal = cartItems.reduce((t, i) => t + i.price * i.qty, 0);
-  const mrpTotal = cartItems.reduce((t, i) => t + i.mrp * i.qty, 0);
+  const grandTotal = cartItems.reduce((t, i) => t + i.price * (i.qty ?? 1), 0);
+  const mrpTotal = cartItems.reduce((t, i) => t + i.mrp * (i.qty ?? 1), 0);
+
   const discount = mrpTotal - grandTotal;
 
   return (

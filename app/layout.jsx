@@ -1,7 +1,4 @@
 import "./globals.css";
-
-import Header from "@/components/components-jsx/Header";
-import Footer from "@/components/components-jsx/Footer";
 import { robotoSlab } from "./fonts";
 
 export const metadata = {
@@ -11,12 +8,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${robotoSlab.className} antialiased`}>
-        <Header />
-        <main className="relative z-[1]">{children}</main>
-        <Footer />
-      </body>
+    <html lang="en">
+      <body className={robotoSlab.className}>{children}</body>
     </html>
   );
 }

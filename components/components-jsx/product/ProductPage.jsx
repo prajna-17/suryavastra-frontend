@@ -17,6 +17,7 @@ import { addToCart } from "@/utils/cart";
 import { productDetails } from "@/data/data";
 import { toggleWishlist, isInWishlist } from "@/utils/wishlist";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
+import ShareModal from "@/components/components-jsx/product/ShareModal";
 
 //  SMALL FIX FOR HEADER CART POP
 function bounceCartIcon(attempt = 0) {
@@ -37,6 +38,11 @@ function bounceCartIcon(attempt = 0) {
 export default function ProductPage({ product }) {
   const base = productDetails[0];
   const [liked, setLiked] = useState(false);
+  const [message, setMessage] = useState(null);
+  function showBottomMessage(text) {
+    setMessage(text);
+    setTimeout(() => setMessage(null), 2000); // auto hide
+  }
 
   useEffect(() => {
     setLiked(isInWishlist(product.id));
@@ -56,6 +62,9 @@ export default function ProductPage({ product }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const startX = useRef(0);
   const isDragging = useRef(false);
+  const [shareOpen, setShareOpen] = useState(false);
+
+  const productLink = typeof window !== "undefined" ? window.location.href : "";
 
   function showToast(msg) {
     const toast = document.createElement("div");
@@ -144,7 +153,10 @@ export default function ProductPage({ product }) {
           </h1>
 
           <div className="flex gap-2">
-            <button className="border rounded-md p-2 text-gray-600">
+            <button
+              className="border border-gray-300 rounded-md p-2 text-gray-600"
+              onClick={() => setShareOpen(true)}
+            >
               <FiShare2 size={16} />
             </button>
 
@@ -222,7 +234,23 @@ export default function ProductPage({ product }) {
 
       {/* Buttons */}
       <div className="mt-6 px-4 flex gap-3">
-        <button className="flex-1 border text-[#8b5e55] py-3 rounded flex items-center justify-center gap-2">
+        <button
+          className="flex-1 border text-[#8b5e55] py-3 rounded flex items-center justify-center gap-2"
+          onClick={() => {
+            const data = {
+              id: product.id,
+              name: product.name,
+              image: product.images?.[0] || product.image,
+              mrp: price,
+              price: discountedPrice,
+              discount: off,
+              qty: 1,
+            };
+
+            localStorage.setItem("checkoutProduct", JSON.stringify(data));
+            window.location.href = "/order"; // <-- Final route
+          }}
+        >
           <HiOutlineShoppingBag /> BUY NOW
         </button>
 
@@ -284,6 +312,20 @@ export default function ProductPage({ product }) {
       <ProductAccordion />
       <YouMayAlsoLike />
       <CustomerReviewCarousel />
+      <ShareModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        productLink={productLink}
+        showBottomMessage={showBottomMessage}
+      />
+
+      {message && (
+        <div className="added-bar show">
+          <div className="added-content">
+            <span>{message}</span>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

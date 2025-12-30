@@ -9,16 +9,16 @@ export default function SimilarSection() {
       <p className="text-base font-medium mb-3">Not Sure What To Buy ?</p>
 
       <div className="relative h-24 rounded-lg overflow-hidden bg-gradient-to-r from-gray-400 to-gray-300 flex items-center px-4">
-        <div className="text-white text-sm font-medium">
+        <div className="text-white text-sm font-medium relative z-10">
           Chat with us <br /> on WhatsApp
         </div>
 
-        <span className="ml-2 text-2xl">💬</span>
+        <span className="ml-2 text-2xl relative z-10">💬</span>
 
         <img
-          src="/img/whatsapp-girl.png"
+          src="/img/rectangle 658.png"
           alt="Chat support"
-          className="absolute right-0 top-0 h-full object-cover"
+          className="absolute right-0 top-0 h-full object-cover z-0"
         />
       </div>
 
