@@ -1,6 +1,29 @@
 "use client";
+import { useState, useEffect } from "react";
+import { API } from "@/utils/api";
 
-export default function FilterSheet({ open, onClose }) {
+export default function FilterSheet({
+  open,
+  onClose,
+  selectedCategory,
+  setSelectedCategory,
+}) {
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  async function fetchCategories() {
+    try {
+      const res = await fetch(`${API}/categories`);
+      const data = await res.json();
+      setCategories(data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   if (!open) return null;
 
   return (
@@ -15,11 +38,29 @@ export default function FilterSheet({ open, onClose }) {
           <button onClick={onClose}>✕</button>
         </div>
 
-        {/* Filter options */}
+        {/* ⭐ CATEGORY FILTER */}
+        <div className="py-6 border-b text-sm">
+          <span className="font-medium">Category</span>
+
+          <select
+            className="w-full mt-2 border p-2 rounded"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <option value="">All</option>
+            {categories.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* existing filters untouched */}
         {["Price Range", "Material", "Colour", "Occasion"].map((item) => (
           <div
             key={item}
-            className="flex justify-between py-6 border-b text-sm "
+            className="flex justify-between py-6 border-b text-sm"
           >
             <span>{item}</span>
             <span>+</span>

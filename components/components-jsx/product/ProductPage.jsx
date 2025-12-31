@@ -36,7 +36,6 @@ function bounceCartIcon(attempt = 0) {
 }
 
 export default function ProductPage({ product }) {
-  const base = productDetails[0];
   const [liked, setLiked] = useState(false);
   const [message, setMessage] = useState(null);
   function showBottomMessage(text) {
@@ -52,12 +51,16 @@ export default function ProductPage({ product }) {
   const images = product.images?.length ? product.images : [product.image];
   const colorImages = product.colorImages?.length
     ? product.colorImages
-    : base.colorImages;
+    : product.images; // fallback to product images for now
 
-  const displayName = product.name ?? base.name;
-  const price = product.price ?? base.price;
-  const discountedPrice = product.discountedPrice ?? base.discountedPrice;
-  const off = product.off ?? base.off;
+  const displayName = product.title;
+  const price = product.oldPrice || product.price;
+  const discountedPrice = product.price;
+  const off = product.oldPrice
+    ? `${Math.round(
+        ((product.oldPrice - product.price) / product.oldPrice) * 100
+      )}%`
+    : "New";
 
   const [activeIndex, setActiveIndex] = useState(0);
   const startX = useRef(0);
@@ -216,8 +219,10 @@ export default function ProductPage({ product }) {
       {/* Colors */}
       <div className="mt-4 px-4">
         <p className="text-sm font-medium mb-2">
-          Colour: <span className="font-normal">Pink</span>
+          Colour:{" "}
+          <span className="font-normal">{product.colors?.[0] || "N/A"}</span>
         </p>
+
         <div className="flex gap-3 overflow-x-auto scrollbar-hide">
           {colorImages.map((c, i) => (
             <button

@@ -53,11 +53,6 @@ export default function ProductCard({
 
             toggleWishlist({
               id,
-              image,
-              name,
-              price,
-              mrp: origPrice,
-              discount,
             });
             setLiked((prev) => !prev);
             // toast message

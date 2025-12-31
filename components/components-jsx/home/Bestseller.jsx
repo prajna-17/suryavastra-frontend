@@ -1,25 +1,31 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { robotoSlab } from "@/app/fonts";
 import ProductCard from "../ui/ProductCard";
-import { allProducts } from "@/data/data";
 import Link from "next/link";
 
+const API = process.env.NEXT_PUBLIC_API_URL;
+
 export default function BestSeller() {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API}/products`)
+      .then((res) => res.json())
+      .then((data) => {
+        const filtered = data.filter(
+          (p) => p.productSellingCategory === "best-selling"
+        );
+        setProducts(filtered.slice(0, 4)); // show only 4
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
   const assuranceData = [
-    {
-      id: 1,
-      image: "/img/grid-1.jpeg",
-      title: "Quality Craftsmanship",
-    },
-    {
-      id: 2,
-      image: "/img/grid-2.jpeg",
-      title: "Return Confirm",
-    },
-    {
-      id: 3,
-      image: "/img/grid-3.jpeg",
-      title: "100% Transparency",
-    },
+    { id: 1, image: "/img/grid-1.jpeg", title: "Quality Craftsmanship" },
+    { id: 2, image: "/img/grid-2.jpeg", title: "Return Confirm" },
+    { id: 3, image: "/img/grid-3.jpeg", title: "100% Transparency" },
   ];
 
   return (
@@ -32,15 +38,21 @@ export default function BestSeller() {
         </div>
 
         <div className="best-grid">
-          {allProducts.slice(0, 4).map((item) => (
+          {products.map((item) => (
             <ProductCard
-              key={item.id}
-              id={item.id}
-              image={item.images ? item.images[0] : item.image}
-              discount={item.off}
-              name={item.name}
-              price={item.discountedPrice}
-              origPrice={item.price}
+              key={item._id}
+              id={item._id}
+              image={item.images?.[0]}
+              name={item.title}
+              price={item.price}
+              origPrice={item.oldPrice}
+              discount={
+                item.oldPrice
+                  ? Math.round(
+                      ((item.oldPrice - item.price) / item.oldPrice) * 100
+                    ) + "%"
+                  : "New"
+              }
             />
           ))}
         </div>

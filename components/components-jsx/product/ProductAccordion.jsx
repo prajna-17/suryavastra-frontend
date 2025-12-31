@@ -52,7 +52,7 @@ export default function ProductAccordion() {
 
   return (
     <div className={`${roboto.className} mt-10 px-4`}>
-      {/* TOP DIVIDER — inset, not touching edges */}
+      {/* TOP DIVIDER inset, not touching edges */}
       <div className="border-t border-[#d8b4a6]" />
 
       {accordionData.map((item, index) => {

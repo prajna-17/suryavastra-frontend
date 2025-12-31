@@ -41,7 +41,7 @@ export default function CustomerReviewCarousel() {
         </button>
       </div>
 
-      {/* ===== REVIEW CARD ===== */}
+      {/* REVIEW CARD  */}
       <div className="relative mt-12 flex justify-center items-center">
         {/* Left Arrow */}
         <button

@@ -1,9 +1,29 @@
 "use client";
 import { roboto } from "@/app/fonts";
-import { FiFilter, FiSliders } from "react-icons/fi";
+import { API } from "@/utils/api";
 
-export default function SortSheet({ open, onClose }) {
+export default function SortSheet({ open, onClose, setProducts }) {
   if (!open) return null;
+
+  async function sortProducts(type) {
+    const res = await fetch(`${API}/products`);
+    const data = await res.json();
+
+    let sorted = [...data];
+
+    if (type === "best") {
+      sorted = data.filter((p) => p.productSellingCategory === "best-selling");
+    }
+    if (type === "low-high") {
+      sorted = data.sort((a, b) => a.price - b.price);
+    }
+    if (type === "high-low") {
+      sorted = data.sort((a, b) => b.price - a.price);
+    }
+
+    setProducts(sorted);
+    onClose();
+  }
 
   return (
     <div
@@ -11,28 +31,34 @@ export default function SortSheet({ open, onClose }) {
       style={{ color: "var(--color-brown)" }}
     >
       <div className="absolute bottom-0 w-full bg-white rounded-t-xl p-4">
-        {/* Header */}
         <div
           className="flex justify-between items-center mb-4 border-b"
           style={{ color: "var(--color-dark-brown)" }}
         >
-          <div className="flex-items-center gap-2 font-medium ">
-            <span> Sort</span>
-          </div>
+          <span className="font-medium">Sort</span>
           <button onClick={onClose}>✕</button>
         </div>
 
-        {["Best selling", "Price - low to high", "Price - high to low"].map(
-          (item) => (
-            <p
-              key={item}
-              onClick={onClose}
-              className="py-3 text-center text-sm "
-            >
-              {item}
-            </p>
-          )
-        )}
+        <p
+          className="py-3 text-center text-sm"
+          onClick={() => sortProducts("best")}
+        >
+          Best selling
+        </p>
+
+        <p
+          className="py-3 text-center text-sm"
+          onClick={() => sortProducts("low-high")}
+        >
+          Price - low to high
+        </p>
+
+        <p
+          className="py-3 text-center text-sm"
+          onClick={() => sortProducts("high-low")}
+        >
+          Price - high to low
+        </p>
       </div>
     </div>
   );

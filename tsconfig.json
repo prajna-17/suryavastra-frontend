@@ -31,6 +31,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     "globals.d.ts"
-  ],
+, "app/order/page.jsx", "app/fonts.js", "app/page.jsx", "app/layout.jsx", "app/shop/page.jsx", "app/product/[id]/page.jsx", "app/cart/page.jsx", "data/data.js"  ],
   "exclude": ["node_modules"]
 }

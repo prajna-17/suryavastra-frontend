@@ -4,6 +4,7 @@ import { IoClose } from "react-icons/io5";
 import { FiChevronRight } from "react-icons/fi";
 import { rougeScript } from "@/app/fonts";
 import { robotoSlab } from "@/app/fonts";
+import { useEffect } from "react";
 
 const menuItems = [
   { name: "Availability", icon: "/img/available.png" },
@@ -17,20 +18,27 @@ const menuItems = [
 ];
 
 export default function SideMenu({ isOpen, onClose }) {
+  // stop background scroll when menu open
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "auto";
+  }, [isOpen]);
+
   return (
     <>
+      {/* Overlay */}
       <div
         onClick={onClose}
         className={`fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300 z-[99998]
         ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}
-        `}
+      `}
       />
 
+      {/* SIDE MENU */}
       <div
-        className={`fixed top-0 left-0 h-full w-[75%] bg-white p-3 transition-transform duration-300 
-        z-[99999] shadow-2xl 
+        className={`fixed top-0 left-0 h-screen w-[75%] overflow-y-scroll overscroll-none
+        bg-white p-3 transition-transform duration-300 z-[99999] shadow-2xl
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
-        `}
+      `}
       >
         <button
           onClick={onClose}
@@ -39,8 +47,8 @@ export default function SideMenu({ isOpen, onClose }) {
           <IoClose size={20} />
         </button>
 
+        {/* Hello Box */}
         <div className="rounded-2xl relative shadow mt-10 mb-6 overflow-hidden">
-          {/* Background */}
           <Image
             src="/img/rectangle.png"
             alt="hello-bg"
@@ -49,7 +57,6 @@ export default function SideMenu({ isOpen, onClose }) {
             className="w-full h-[150px] object-cover"
           />
 
-          {/* Overlay */}
           <div className="absolute inset-0 text-white p-5 flex flex-col justify-between">
             <p className={`text-[28px] italic ${rougeScript.className}`}>
               Hello
@@ -70,6 +77,7 @@ export default function SideMenu({ isOpen, onClose }) {
           </div>
         </div>
 
+        {/* Menu List */}
         <div className={`flex flex-col gap-3 ${robotoSlab.className}`}>
           {menuItems.map((item, idx) => (
             <div

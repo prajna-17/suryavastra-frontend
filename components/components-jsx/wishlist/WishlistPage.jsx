@@ -8,6 +8,7 @@ import { robotoSlab } from "@/app/fonts";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import getDiscount from "@/utils/getDiscount";
 
 export default function WishlistPage() {
   const router = useRouter();
@@ -19,7 +20,43 @@ export default function WishlistPage() {
   });
 
   useEffect(() => {
-    setWishlist(getWishlist());
+    const stored = getWishlist();
+
+    async function loadProducts() {
+      const result = [];
+
+      for (let item of stored) {
+        try {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/products/${item.id}`
+          );
+
+          if (res.ok) {
+            const data = await res.json();
+
+            result.push({
+              id: data._id,
+              name: data.title,
+              image: data.images[0],
+              price: data.price,
+              mrp: data.oldPrice,
+              discount: data.oldPrice
+                ? Math.round(
+                    ((data.oldPrice - data.price) / data.oldPrice) * 100
+                  ) + "%"
+                : "New",
+            });
+          }
+        } catch (err) {
+          console.log("Invalid Wishlist Item Removed:", item.id);
+        }
+      }
+
+      setWishlist(result);
+      localStorage.setItem("wishlist", JSON.stringify(result)); // 🔥 cleans ghost items
+    }
+
+    loadProducts();
   }, []);
 
   const moveToCart = (item) => {

@@ -2,27 +2,19 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-// import { api } from "@/api/api";              // enable later when backend ready
-// import { toast } from "react-toastify";
-// import { useUploadThing } from "@/uploadthing"; // enable later for image upload
-import Modal from "@/components/components-jsx/admin/Modal";
-import ConfirmModal from "@/components/components-jsx/admin/ConfirmModal";
+import { API } from "@/utils/api";
 import "@/components/components-jsx/admin/modal.css";
 import "@/components/components-jsx/admin/confirmModal.css";
+
 export default function EditProductPage() {
   const router = useRouter();
-  const { id } = useParams(); // dynamic id from URL
+  const { id } = useParams();
 
-  // const { startUpload, isUploading } = useUploadThing("imageUploader", {
-  //   onClientUploadComplete: (res) => setImageUrl(res[0].url),
-  // });
-
-  const [image, setImageUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
 
-  // FORM FIELDS
+  // FORM STATES
+  const [image, setImageUrl] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -35,52 +27,64 @@ export default function EditProductPage() {
   const [inStock, setInStock] = useState(true);
 
   useEffect(() => {
-    loadDummyProduct(); // replace later with real fetch from API
-    loadDummyCategories(); // replace later
+    loadProduct();
+    loadCategories();
   }, []);
 
-  // Temporary Dummy — will replace with API later
-  const loadDummyProduct = () => {
-    setTitle("Kanchipuram Saree");
-    setDescription("Beautiful silk saree");
-    setImageUrl("/dummy.jpg");
-    setPrice("2499");
-    setOldPrice("2999");
-    setQuantity(10);
-    setSizes("S,M,L");
-    setColors("Red,Gold");
-    setCategoryId("1");
-    setSellingCategory("featured");
-    setInStock(true);
+  // 🔹 fetch selected product
+  const loadProduct = async () => {
+    const res = await fetch(`${API}/products/${id}`);
+    const data = await res.json();
+
+    if (!res.ok) return alert("Product not found ❌");
+
+    setTitle(data.title);
+    setDescription(data.description);
+    setImageUrl(data.images?.[0] || "");
+    setPrice(data.price);
+    setOldPrice(data.oldPrice || "");
+    setQuantity(data.quantity);
+    setSizes(data.sizes.join(","));
+    setColors(data.colors.join(","));
+    setCategoryId(data.category?._id || "");
+    setSellingCategory(data.productSellingCategory);
+    setInStock(data.inStock);
+
     setLoading(false);
   };
 
-  const loadDummyCategories = () => {
-    setCategories([
-      { _id: "1", name: "Silk Saree" },
-      { _id: "2", name: "Cotton Saree" },
-      { _id: "3", name: "Banarasi" },
-    ]);
+  // 🔹 category for dropdown
+  const loadCategories = async () => {
+    const res = await fetch(`${API}/categories`);
+    setCategories(await res.json());
   };
 
-  const updateProduct = () => {
-    const payload = {
-      id,
+  // 🔥 UPDATE PRODUCT API
+  const updateProduct = async () => {
+    const body = {
       title,
       description,
-      images: [image],
-      price,
-      oldPrice,
-      quantity,
-      sizes: sizes.split(","),
-      colors: colors.split(","),
-      categoryId,
-      sellingCategory,
+      images: [image], // no upload now
+      price: Number(price),
+      oldPrice: Number(oldPrice),
+      quantity: Number(quantity),
+      sizes: sizes.split(",").map((x) => x.trim()),
+      colors: colors.split(",").map((x) => x.trim()),
+      category: categoryId,
+      productSellingCategory: sellingCategory,
       inStock,
     };
 
-    console.log("UPDATED PRODUCT DATA → ", payload);
-    router.push("/admin/product");
+    const res = await fetch(`${API}/products/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (res.ok) {
+      alert("Product Updated ✔");
+      router.push("/admin/product");
+    } else alert("Failed to update ❌");
   };
 
   if (loading) return <div style={{ padding: 30 }}>Loading...</div>;
@@ -90,31 +94,28 @@ export default function EditProductPage() {
       <h1 className="page-title">Edit Product</h1>
 
       <div className="create-prod-form">
-        {/* IMAGE PREVIEW */}
+        {/* Preview */}
         {image && (
-          <div style={{ marginBottom: 10 }}>
-            <img
-              src={image}
-              alt="preview"
-              className="preview-img"
-              style={{ width: 140, height: 140 }}
-            />
-          </div>
+          <img
+            src={image}
+            alt="preview"
+            className="preview-img"
+            style={{ width: 140, height: 140, marginBottom: 10 }}
+          />
         )}
 
         <input
           className="modal-input"
-          placeholder="Product Name"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          placeholder="Product Name"
         />
-
         <textarea
           className="modal-input"
           rows={3}
-          placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          placeholder="Description"
         />
 
         <select
@@ -133,47 +134,38 @@ export default function EditProductPage() {
         <input
           type="file"
           accept="image/*"
-          // disabled={isUploading}
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) setImageUrl(URL.createObjectURL(file));
-            // startUpload([file]);  // enable later
-          }}
+          onChange={(e) => setImageUrl(URL.createObjectURL(e.target.files[0]))}
         />
 
         <input
           className="modal-input"
-          placeholder="Price"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
+          placeholder="Price"
         />
-
         <input
           className="modal-input"
-          placeholder="Old Price"
           value={oldPrice}
           onChange={(e) => setOldPrice(e.target.value)}
+          placeholder="Old Price"
         />
-
         <input
           className="modal-input"
-          placeholder="Quantity"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
+          placeholder="Quantity"
         />
-
         <input
           className="modal-input"
-          placeholder="Sizes (S,M,L...)"
           value={sizes}
           onChange={(e) => setSizes(e.target.value)}
+          placeholder="Sizes (S,M,L)"
         />
-
         <input
           className="modal-input"
-          placeholder="Colors"
           value={colors}
           onChange={(e) => setColors(e.target.value)}
+          placeholder="Colors"
         />
 
         <select

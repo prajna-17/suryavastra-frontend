@@ -1,4 +1,5 @@
 // utils/cart.jsx
+import getDiscount from "./getDiscount";
 
 export const getCart = () => {
   if (typeof window === "undefined") return [];
@@ -6,18 +7,22 @@ export const getCart = () => {
 };
 
 export const addToCart = (product) => {
+  const discount = getDiscount(product.price, product.mrp || product.oldPrice);
+
   const cart = getCart();
   const existing = cart.find((i) => i.id === product.id);
 
   if (existing) {
     existing.qty += 1;
   } else {
-    cart.push({ ...product, qty: 1 });
+    cart.push({
+      ...product,
+      discount,
+      qty: 1,
+    });
   }
 
   localStorage.setItem("cart", JSON.stringify(cart));
-
-  // notify header to update immediately
   window.dispatchEvent(new Event("cart-updated"));
 };
 

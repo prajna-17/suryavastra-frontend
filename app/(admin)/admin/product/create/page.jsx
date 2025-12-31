@@ -1,4 +1,6 @@
 "use client";
+import { API } from "@/utils/api";
+import { useUploadThing } from "@/utils/upload";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -10,6 +12,8 @@ import ConfirmModal from "@/components/components-jsx/admin/ConfirmModal";
 import "@/components/components-jsx/admin/modal.css";
 import "@/components/components-jsx/admin/confirmModal.css";
 export default function AdminCreateProduct() {
+  const { startUpload } = useUploadThing("imageUploader");
+
   const router = useRouter();
 
   // Upload disabled until backend ready
@@ -33,23 +37,19 @@ export default function AdminCreateProduct() {
   const [inStock, setInStock] = useState(true);
 
   useEffect(() => {
-    // fetchCategories(); // enable when backend ready
-
-    // Temporary dummy categories
-    setCategories([
-      { _id: "1", name: "Silk Saree" },
-      { _id: "2", name: "Cotton Saree" },
-      { _id: "3", name: "Banarasi Saree" },
-    ]);
+    fetch(`${API}/categories`)
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch((err) => console.log(err));
   }, []);
 
   // Submit handler (backend unavailable now, so just console)
-  const submitProduct = () => {
+  const submitProduct = async () => {
     const payload = {
       id: "PID-" + Date.now(),
       title,
       description,
-      images: [image || "/placeholder.png"],
+      images: [image],
       price: Number(price),
       oldPrice: oldPrice ? Number(oldPrice) : null,
       quantity: Number(quantity),
@@ -60,8 +60,20 @@ export default function AdminCreateProduct() {
       inStock,
     };
 
-    console.log("Product saved temporarily:", payload);
-    router.push("/admin/product");
+    try {
+      const res = await fetch(`${API}/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to create product");
+
+      alert("Product Created Successfully 🎉");
+      router.push("/admin/product");
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
   };
 
   return (
@@ -109,15 +121,23 @@ export default function AdminCreateProduct() {
         </select>
 
         {/* Image Upload */}
+        {/* Image Upload */}
         <label>Product Image</label>
         <input
           type="file"
           accept="image/*"
-          // disabled={isUploading}
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) setImageUrl(URL.createObjectURL(file));
-            // startUpload([file]); // enable later
+          onChange={async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            setImageUrl(URL.createObjectURL(file)); // preview instantly
+
+            // Upload to server
+            const upload = await startUpload([file]);
+            if (upload && upload[0]?.url) {
+              setImageUrl(upload[0].url); // final cloud URL replaces preview
+              console.log("Uploaded:", upload[0].url);
+            }
           }}
         />
 

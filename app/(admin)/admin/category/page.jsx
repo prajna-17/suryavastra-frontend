@@ -4,22 +4,18 @@ import ConfirmModal from "@/components/components-jsx/admin/ConfirmModal";
 import "@/components/components-jsx/admin/modal.css";
 import "@/components/components-jsx/admin/confirmModal.css";
 import React, { useState, useEffect } from "react";
-// import Modal from "@/components/components-jsx/admin/Modal"; // create later
-// import { api } from "@/api/api";                           // enable when backend ready
-// import { useUploadThing } from "@/uploadthing";            // enable later for upload
+
+const API = process.env.NEXT_PUBLIC_API_URL; // http://localhost:5000/api
 
 export default function AdminCategory() {
-  // Commenting upload for now (backend not ready)
-  // const { startUpload, isUploading } = useUploadThing("imageUploader", {
-  //   onClientUploadComplete: (res) => setImageUrl(res[0].url),
-  // });
+  const [categories, setCategories] = useState([]);
 
-  const [categories, setCategories] = useState([
-    // Temporary dummy data (will replace with API later)
-    { _id: 1, name: "Silk Saree", image: "/dummy.jpg" },
-    { _id: 2, name: "Cotton Saree", image: "/dummy.jpg" },
-    { _id: 3, name: "Banarasi", image: "/dummy.jpg" },
-  ]);
+  useEffect(() => {
+    fetch(`${API}/categories`)
+      .then((r) => r.json())
+      .then((d) => setCategories(d))
+      .catch(() => console.log("Fetch error ❌"));
+  }, []);
 
   const [openModal, setOpenModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -38,7 +34,6 @@ export default function AdminCategory() {
     <div>
       <h1 className="page-title">Manage Categories</h1>
 
-      {/* Search + Create */}
       <div className="cat-top-row">
         <input
           type="text"
@@ -53,6 +48,7 @@ export default function AdminCategory() {
           onClick={() => {
             setEditMode(false);
             setName("");
+            setImageUrl("");
             setOpenModal(true);
           }}
         >
@@ -60,12 +56,13 @@ export default function AdminCategory() {
         </button>
       </div>
 
-      {/* Category Cards */}
       <div className="category-grid">
         {filtered.map((cat) => (
           <div key={cat._id} className="category-card">
-            <img src={cat.image} className="category-img" />
-
+            <img
+              src={cat.image || "/img/placeholder.jpg"}
+              className="category-img"
+            />
             <div className="category-title">{cat.name}</div>
 
             <div className="category-actions">
@@ -73,8 +70,9 @@ export default function AdminCategory() {
                 className="edit-btn"
                 onClick={() => {
                   setEditMode(true);
-                  setName(cat.name);
                   setCurrentId(cat._id);
+                  setName(cat.name);
+                  setImageUrl(cat.image);
                   setOpenModal(true);
                 }}
               >
@@ -90,13 +88,14 @@ export default function AdminCategory() {
               >
                 Delete
               </button>
+
               <button className="inactive-btn">Activate</button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Modal UI will be added if you want now */}
+      {/* Create + Edit Modal */}
       <Modal
         open={openModal}
         title={editMode ? "Edit Category" : "Create Category"}
@@ -115,47 +114,80 @@ export default function AdminCategory() {
           accept="image/*"
           className="modal-input"
           onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) setImageUrl(URL.createObjectURL(file));
+            const f = e.target.files?.[0];
+            if (f) setImageUrl(URL.createObjectURL(f)); // upload later
           }}
         />
 
         {image && (
           <img
             src={image}
-            alt="Preview"
             style={{ width: 100, height: 100, borderRadius: 8, marginTop: 10 }}
           />
         )}
 
         <button
           className="primary-btn create-btn"
-          onClick={() => {
-            if (editMode) {
-              // update logic later
-              console.log("Update category:", name);
-            } else {
-              // create logic later
-              console.log("Create category:", name);
+          onClick={async () => {
+            if (!name.trim()) return alert("Enter category name");
+
+            // 🔥 CREATE
+            if (!editMode) {
+              const r = await fetch(`${API}/categories`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, image }), // upload later
+              });
+
+              if (r.ok) {
+                const newCat = await r.json();
+                setCategories([...categories, newCat]);
+                alert("Created ✔");
+              } else alert("Failed ❌");
             }
+
+            // 🔥 UPDATE
+            else {
+              const r = await fetch(`${API}/categories/${currentId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, image }),
+              });
+
+              if (r.ok) {
+                alert("Updated ✔");
+                setCategories(
+                  categories.map((c) =>
+                    c._id === currentId ? { ...c, name, image } : c
+                  )
+                );
+              } else alert("Update failed ❌");
+            }
+
             setOpenModal(false);
           }}
         >
           {editMode ? "Update" : "Create"}
         </button>
       </Modal>
+
+      {/* DELETE CONFIRM */}
       <ConfirmModal
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
-        onConfirm={() => {
-          console.log("Deleting Category:", deleteId);
+        message="Category will be permanently deleted."
+        onConfirm={async () => {
+          const r = await fetch(`${API}/categories/${deleteId}`, {
+            method: "DELETE",
+          });
 
-          // later when backend ready👇
-          // setCategories(categories.filter(c => c._id !== deleteId));
+          if (r.ok) {
+            alert("Deleted ✔");
+            setCategories(categories.filter((c) => c._id !== deleteId));
+          } else alert("Delete failed ❌");
 
           setConfirmOpen(false);
         }}
-        message="Category will be permanently deleted."
       />
     </div>
   );

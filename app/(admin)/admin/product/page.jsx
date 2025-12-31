@@ -4,37 +4,25 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import ConfirmModal from "@/components/components-jsx/admin/ConfirmModal";
 import "@/components/components-jsx/admin/confirmModal.css";
+import { API } from "@/utils/api";
 
 export default function AdminProducts() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  // Dummy data until backend is connected
-  const [categories, setCategories] = useState([
-    { _id: "1", name: "Silk Saree" },
-    { _id: "2", name: "Cotton Saree" },
-  ]);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  const [products, setProducts] = useState([
-    {
-      _id: "p1",
-      title: "Red Silk Saree",
-      price: 1499,
-      quantity: 10,
-      inStock: true,
-      images: ["/dummy.jpg"],
-      category: { _id: "1", name: "Silk Saree" },
-    },
-    {
-      _id: "p2",
-      title: "Green Cotton Saree",
-      price: 999,
-      quantity: 5,
-      inStock: false,
-      images: ["/dummy.jpg"],
-      category: { _id: "2", name: "Cotton Saree" },
-    },
-  ]);
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    const prod = await fetch(`${API}/products`).then((res) => res.json());
+    const cats = await fetch(`${API}/categories`).then((res) => res.json());
+    setProducts(prod);
+    setCategories(cats);
+  };
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -48,8 +36,19 @@ export default function AdminProducts() {
     setConfirmOpen(true);
   };
 
-  const confirmDelete = () => {
-    setProducts(products.filter((p) => p._id !== deleteId));
+  // ⭐ backend delete added here
+  const confirmDelete = async () => {
+    const res = await fetch(`${API}/products/${deleteId}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      setProducts(products.filter((p) => p._id !== deleteId));
+      alert("Product deleted ✔");
+    } else {
+      alert("Delete failed ❌");
+    }
+
     setConfirmOpen(false);
   };
 
@@ -87,7 +86,7 @@ export default function AdminProducts() {
         </Link>
       </div>
 
-      {/* GRID */}
+      {/* Product Grid */}
       <div className="product-grid">
         {filteredProducts.map((p) => (
           <div className="product-card" key={p._id}>
@@ -123,7 +122,7 @@ export default function AdminProducts() {
         ))}
       </div>
 
-      {/* Delete Modal */}
+      {/* Delete modal */}
       <ConfirmModal
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}

@@ -1,24 +1,33 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { allProducts } from "@/data/data";
 import ProductPage from "@/components/components-jsx/product/ProductPage";
 
 export default function DynamicProductPage() {
-  const params = useParams();
-  const product = allProducts.find((p) => p.id === params.id);
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  console.log("PRODUCT → ", product);
-  console.log("PARAMS ID:", params.id);
-  console.log(
-    "ALL PRODUCT IDS:",
-    allProducts.map((p) => p.id)
-  );
-  console.log(
-    "PRODUCT FOUND:",
-    allProducts.find((p) => p.id === params.id)
-  );
+  const API = "http://localhost:5000/api";
 
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        const res = await fetch(`${API}/products/${id}`);
+        const data = await res.json();
+        if (res.ok) setProduct(data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProduct();
+  }, [id]);
+
+  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
   if (!product) return <h1>Product not found</h1>;
 
   return <ProductPage product={product} />;
