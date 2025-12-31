@@ -103,6 +103,7 @@ export default function WishlistPage() {
                   src={item.image}
                   alt={item.name}
                   fill
+                  sizes="50vw"
                   className="object-cover"
                 />
 

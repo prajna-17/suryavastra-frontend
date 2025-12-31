@@ -408,4 +408,5 @@ export const allProducts = [
   ...sarees,
   ...shopProducts,
   ...youMayAlsoLikeProducts,
+  ...recentlyViewedProducts,
 ];

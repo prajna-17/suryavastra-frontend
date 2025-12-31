@@ -22,6 +22,7 @@ export default function ShopPage() {
           src="/img/saree6copy.jpeg"
           alt="Banarasi Sarees"
           fill
+          sizes="100vw"
           className="object-cover"
           priority
         />
@@ -93,6 +94,7 @@ export default function ShopPage() {
             src="/img/saree9.jpeg"
             alt="End of Season Sale"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />

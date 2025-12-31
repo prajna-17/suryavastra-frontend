@@ -32,10 +32,14 @@ export default function ProductCard({
   return (
     <div className="bg-white border border-gray-200 rounded-lg relative">
       <div className="relative aspect-[4/5] w-full">
-        <Link href={`/product/${id}`}>
-          <div className="cursor-pointer">
-            <Image src={image} alt={name} fill className="object-cover" />
-          </div>
+        <Link href={`/product/${id}`} className="block relative w-full h-full">
+          <Image
+            src={image}
+            alt={name}
+            fill
+            sizes="50vw"
+            className="object-cover"
+          />
         </Link>
 
         <button
