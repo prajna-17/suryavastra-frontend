@@ -1249,6 +1249,7 @@
 /* wishlist icon bounce in header */
 .wishlist-bounce {
   animation: bounceIcon 0.6s ease;
+
 }
 
 @keyframes bounceIcon {
