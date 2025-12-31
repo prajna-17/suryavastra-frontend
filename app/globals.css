@@ -211,11 +211,9 @@
   pointer-events: none;
   z-index: 2;
 
-  background: radial-gradient(
-      ellipse at center,
+  background: radial-gradient(ellipse at center,
       rgba(0, 0, 0, 0) 40%,
-      rgba(100, 53, 51, 0.65) 100%
-    ),
+      rgba(100, 53, 51, 0.65) 100%),
     linear-gradient(to top, rgba(100, 53, 51, 0.55), rgba(100, 53, 51, 0));
 }
 
@@ -336,11 +334,9 @@
   height: 100%;
   pointer-events: none;
 
-  background: linear-gradient(
-    to top,
-    rgba(100, 53, 51, 0.7),
-    rgba(100, 53, 51, 0)
-  );
+  background: linear-gradient(to top,
+      rgba(100, 53, 51, 0.7),
+      rgba(100, 53, 51, 0));
   z-index: 2;
 }
 
@@ -645,13 +641,11 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(
-    circle at center,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0) 45%,
-    rgba(60, 30, 30, 0.5) 70%,
-    rgba(0, 0, 0, 0.85) 100%
-  );
+  background: radial-gradient(circle at center,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0) 45%,
+      rgba(60, 30, 30, 0.5) 70%,
+      rgba(0, 0, 0, 0.85) 100%);
   z-index: 7;
 }
 
@@ -865,12 +859,10 @@
   height: 230px;
   pointer-events: none;
 
-  background: radial-gradient(
-    circle at center,
-    rgba(100, 53, 51, 0) 0%,
-    rgba(100, 53, 51, 0.35) 60%,
-    rgba(100, 53, 51, 0.65) 100%
-  );
+  background: radial-gradient(circle at center,
+      rgba(100, 53, 51, 0) 0%,
+      rgba(100, 53, 51, 0.35) 60%,
+      rgba(100, 53, 51, 0.65) 100%);
 
   z-index: 2;
 }
@@ -1333,15 +1325,19 @@
   0% {
     transform: scale(1);
   }
+
   30% {
     transform: scale(1.15);
   }
+
   60% {
     transform: scale(1.15) rotate(1.5deg);
   }
+
   80% {
     transform: scale(1.15) rotate(-1.5deg);
   }
+
   100% {
     transform: scale(1);
   }
@@ -1351,6 +1347,7 @@
   animation: popShake 0.7s ease forwards;
   transform-origin: center;
 }
+
 .added-bar {
   position: fixed;
   bottom: -200px;
@@ -1416,6 +1413,7 @@
   border-radius: 8px;
   margin-top: 20px;
 }
+
 .cart-bounce {
   animation: cartPop 0.45s cubic-bezier(0.31, 1.4, 0.56, 1.27);
 }
@@ -1424,12 +1422,15 @@
   0% {
     transform: scale(1);
   }
+
   35% {
     transform: scale(1.35);
   }
+
   70% {
     transform: scale(1.05);
   }
+
   100% {
     transform: scale(1);
   }
@@ -1494,6 +1495,7 @@
     opacity: 1;
     transform: translateX(0);
   }
+
   to {
     opacity: 0;
     transform: translateX(-50px);
@@ -1505,11 +1507,13 @@
     transform: translate(-50%, -50%) scale(0.8);
     opacity: 0;
   }
+
   100% {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
   }
 }
+
 /* Move to wishlist slide */
 .cart-item {
   transition: transform 0.4s ease, opacity 0.4s ease;
@@ -1519,25 +1523,31 @@
   transform: translateX(50px);
   opacity: 0;
 }
+
 /* Qty Pop Animation */
 .qty-pop {
   transform: scale(1.15);
   transition: transform 0.2s ease;
 }
+
 .wish-remove {
   opacity: 0;
   transform: translateX(-30px);
 }
+
 @keyframes wishCartPop {
   0% {
     transform: scale(1);
   }
+
   30% {
     transform: scale(1.15);
   }
+
   60% {
     transform: scale(1.18);
   }
+
   100% {
     transform: scale(1);
   }
@@ -1547,20 +1557,27 @@
   animation: wishCartPop 0.6s ease;
   transform-origin: center;
 }
+
 .cart-anim-btn {
   transform-origin: center;
 }
+
 /* ==========================================================
    MONTO ADMIN PANEL — CLEANINGBUDDY STYLE (WHITE + ORANGE)
    Minimal • Premium • Professional • Clean • Corporate
 ========================================================== */
 
 :root {
-  --brand: #f37a20; /* main Monto orange */
-  --brand-dark: #d96614; /* darker shade */
-  --brand-light: #f9a45c; /* subtle accent */
-  --bg: #ffffff; /* pure white UI */
-  --bg-soft: #fafafa; /* light neutral */
+  --brand: #f37a20;
+  /* main Monto orange */
+  --brand-dark: #d96614;
+  /* darker shade */
+  --brand-light: #f9a45c;
+  /* subtle accent */
+  --bg: #ffffff;
+  /* pure white UI */
+  --bg-soft: #fafafa;
+  /* light neutral */
   --text: #1f1f1f;
   --text-light: #6f6f6f;
   --border: #e4e4e4;
@@ -1584,7 +1601,8 @@
   left: 0;
   right: 0;
   height: 58px;
-  background: var(--bg); /* WHITE HEADER — same as CleaningBuddy */
+  background: var(--bg);
+  /* WHITE HEADER — same as CleaningBuddy */
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -1680,6 +1698,7 @@
   padding-bottom: 6px;
   width: max-content;
 }
+
 .page-title-underline {
   width: 140px;
   height: 3px;
@@ -1957,6 +1976,7 @@
 .primary-btn:hover {
   background: var(--color-dark-brown);
 }
+
 /* --- CLEANINGBUDDY STYLE DASHBOARD CARDS --- */
 
 .dashboard-cards {
@@ -1968,7 +1988,8 @@
 
 /* 1. Large card layout */
 .dashboard-card {
-  background: #fff8f2; /* extremely light orange */
+  background: #fff8f2;
+  /* extremely light orange */
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(209, 60, 60, 0.06);
@@ -1980,7 +2001,8 @@
 .dashboard-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-  background: #fff3e6; /* slightly deeper orange tint on hover */
+  background: #fff3e6;
+  /* slightly deeper orange tint on hover */
 }
 
 /* 2. Main title inside card */
@@ -2004,6 +2026,7 @@
   color: var(--text-light);
   margin-top: 4px;
 }
+
 /* --- DASHBOARD TOP BUTTONS (CleaningBuddy Style) --- */
 
 .dashboard-actions {
@@ -2042,6 +2065,7 @@
   font-weight: 700;
   color: var(--text);
 }
+
 /* Search + Create Row */
 .cat-top-row {
   display: flex;
@@ -2116,18 +2140,22 @@
   background: var(--color-brown);
   color: white;
 }
+
 .delete-btn {
   background: var(--color-primary);
   color: #cc4242;
 }
+
 .inactive-btn {
   background: #f1f1f1;
   color: #555;
 }
+
 /* ---------- Product grid (premium) ---------- */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* now shows 2 cards per row */
+  grid-template-columns: repeat(2, 1fr);
+  /* now shows 2 cards per row */
   gap: 26px;
 }
 
@@ -2205,10 +2233,12 @@
   padding: 8px 10px;
   font-size: 13px;
 }
+
 .delete-btn.small {
   padding: 8px 10px;
   font-size: 13px;
 }
+
 .inactive-btn.small {
   padding: 8px 10px;
   font-size: 13px;
@@ -2237,7 +2267,8 @@
 }
 
 .create-btn {
-  margin-top: 12px !important; /* small & cute spacing */
+  margin-top: 12px !important;
+  /* small & cute spacing */
   display: inline-block;
 }
 
@@ -2245,26 +2276,32 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 6px !important; /* reduce spacing */
+  margin-bottom: 6px !important;
+  /* reduce spacing */
 }
+
 .form-row {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* consistent vertical spacing */
+  gap: 12px;
+  /* consistent vertical spacing */
 }
 
 .modal-input {
-  margin-bottom: 0 !important; /* remove extra accidental margins */
+  margin-bottom: 0 !important;
+  /* remove extra accidental margins */
 }
 
 .select-input {
-  margin-top: 2px !important; /* align dropdown perfectly */
+  margin-top: 2px !important;
+  /* align dropdown perfectly */
 }
 
 /* ------------------------------
    RESPONSIVE (MOBILE VIEW)
 --------------------------------*/
 @media (max-width: 768px) {
+
   /* Sidebar */
   .admin-sidebar {
     position: fixed;
@@ -2292,7 +2329,8 @@
 
   /* Product grid */
   .product-grid {
-    grid-template-columns: 1fr !important; /* 1 card per row */
+    grid-template-columns: 1fr !important;
+    /* 1 card per row */
   }
 
   .product-card {
@@ -2325,6 +2363,7 @@
     padding: 10px !important;
   }
 }
+
 .form-group {
   margin-bottom: 14px;
 }
