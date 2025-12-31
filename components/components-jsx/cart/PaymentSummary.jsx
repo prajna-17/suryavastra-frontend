@@ -7,24 +7,24 @@ import Image from "next/image";
 export default function PaymentSummary() {
   const [cart, setCart] = useState([]);
 
+  // 🔥 Live update without refresh
   useEffect(() => {
-    setCart(getCart());
+    const update = () => setCart(getCart());
+    update();
+    window.addEventListener("cart-updated", update);
+    window.addEventListener("storage", update);
+    return () => {
+      window.removeEventListener("cart-updated", update);
+      window.removeEventListener("storage", update);
+    };
   }, []);
 
   const toNumber = (v) => Number(String(v).replace(/[^0-9]/g, ""));
 
-  // subtotal based on selling price
   const subtotal = cart.reduce((t, i) => t + toNumber(i.price) * i.qty, 0);
-
-  // total MRP before discount
   const totalMrp = cart.reduce((t, i) => t + toNumber(i.mrp) * i.qty, 0);
-
-  // savings
   const discount = totalMrp - subtotal;
-
-  // delivery later dynamic but free for now
   const delivery = 0;
-
   const grandTotal = subtotal + delivery;
 
   return (
@@ -34,6 +34,7 @@ export default function PaymentSummary() {
         Payment Details (
         <span className="text-gray-400">{cart.length} Items</span>)
       </h3>
+
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
           <span>Sub Total</span>
@@ -59,6 +60,7 @@ export default function PaymentSummary() {
           <span>₹ {grandTotal.toLocaleString("en-IN")}</span>
         </div>
       </div>
+
       <div
         className="bg-[#f3dfdb] text-xs text-center py-2 rounded font-medium mt-5"
         style={{ color: "var(--color-dark-brown)" }}

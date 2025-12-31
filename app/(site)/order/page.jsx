@@ -12,30 +12,36 @@ export default function OrderPage() {
   const [address, setAddress] = useState(null);
   const [hydrated, setHydrated] = useState(false);
 
+  // ---- LIVE CART + BUY-NOW HANDLER ----
   useEffect(() => {
     const single = JSON.parse(localStorage.getItem("checkoutProduct"));
 
-    if (single) {
-      setCartItems([single]); // BUY NOW → single product
-    } else {
-      setCartItems(getCart()); // CART → full items
-    }
+    if (single) setCartItems([single]);
+    else setCartItems(getCart());
 
     const saved = localStorage.getItem("userAddress");
     if (saved) setAddress(JSON.parse(saved));
 
     setHydrated(true);
+
+    // Live update on remove / qty change
+    const update = () => setCartItems(getCart());
+
+    window.addEventListener("cart-updated", update);
+    window.addEventListener("storage", update);
+
+    return () => {
+      window.removeEventListener("cart-updated", update);
+      window.removeEventListener("storage", update);
+    };
   }, []);
 
   if (!hydrated) return null;
 
-  const refreshCart = () => {
-    setCartItems(getCart());
-  };
+  const refreshCart = () => setCartItems(getCart());
 
   const grandTotal = cartItems.reduce((t, i) => t + i.price * (i.qty ?? 1), 0);
   const mrpTotal = cartItems.reduce((t, i) => t + i.mrp * (i.qty ?? 1), 0);
-
   const discount = mrpTotal - grandTotal;
 
   return (
@@ -55,8 +61,7 @@ export default function OrderPage() {
                 <span className="font-semibold">{address.name}</span>
                 <br />
                 <span className="font-normal">
-                  {" "}
-                  {address.details},{address.city}, - {address.pincode}
+                  {address.details}, {address.city} - {address.pincode}
                 </span>
               </>
             ) : (
@@ -88,7 +93,8 @@ export default function OrderPage() {
       {/* Payment Section */}
       <div className="mt-10 space-y-3 text-sm">
         <h3 className="font-semibold flex items-center gap-2 text-[#080808]">
-          💳 Payment Details
+          <Image src="/img/pay-emo.png" alt="card" width={16} height={16} />
+          Payment Details{" "}
           <span className="text-gray-500">({cartItems.length} Items)</span>
         </h3>
 
@@ -119,10 +125,11 @@ export default function OrderPage() {
 
       {/* Cart Items */}
       <div className="mt-6 space-y-4">
-        {cartItems.map((item, index) => (
+        {cartItems.map((item) => (
           <div
-            key={index}
-            className="flex items-center gap-3 bg-white shadow-lg p-3 rounded-xl"
+            key={item.id}
+            id={`order-${item.id}`}
+            className="cart-item flex items-center gap-3 bg-white shadow-lg p-3 rounded-xl"
           >
             <Image
               src={item.image}
@@ -138,30 +145,65 @@ export default function OrderPage() {
                 {item.name.split(" ").slice(1).join(" ")}
               </p>
               <p className="text-gray-900 text-xs mt-1 font-medium">
-                Qty: {item.qty}
+                Qty: {item.qty ?? 1}
               </p>
               <p className="font-semibold mt-1">
                 ₹ {item.price.toLocaleString("en-IN")}
               </p>
             </div>
 
+            {/* REMOVE with confirmation + animation */}
             <Trash2
               size={18}
               className="text-[#534b4a] cursor-pointer"
               onClick={() => {
-                removeFromCart(item.id);
-                refreshCart();
+                const popup = document.createElement("div");
+                popup.className = "confirm-remove-box";
+                popup.innerHTML = `
+                    <div class="confirm-text">Remove item from cart?</div>
+                    <div class="confirm-actions">
+                        <button class="confirm-yes">Yes</button>
+                        <button class="confirm-no">No</button>
+                    </div>`;
+                document.body.appendChild(popup);
+
+                popup.querySelector(".confirm-yes").onclick = () => {
+                  const row = document.getElementById(`order-${item.id}`);
+                  row?.classList.add("slide-remove"); // <-- triggers same animation
+
+                  const audio = new Audio("/sounds/pop.mp3");
+                  audio.volume = 0.6;
+                  audio.play();
+
+                  setTimeout(() => {
+                    removeFromCart(item.id);
+                    refreshCart();
+                    window.dispatchEvent(new Event("cart-updated"));
+                  }, 400);
+
+                  popup.remove();
+                };
+
+                popup.querySelector(".confirm-no").onclick = () =>
+                  popup.remove();
               }}
             />
           </div>
         ))}
       </div>
 
-      {/* Bottom Button */}
+      {/* Bottom Button - LIVE Disable */}
       <button
-        onClick={() => (window.location.href = "/payment")}
-        className="fixed bottom-4 left-4 right-4 bg-[#6b3430] text-white py-3 rounded-md 
-             font-semibold active:scale-95"
+        onClick={() =>
+          cartItems.length > 0 && (window.location.href = "/payment")
+        }
+        disabled={cartItems.length === 0}
+        className={`fixed bottom-4 left-4 right-4 py-3 rounded-md font-semibold text-white active:scale-95
+        ${
+          cartItems.length === 0
+            ? "bg-gray-300 cursor-not-allowed"
+            : "bg-[#6b3430]"
+        }`}
       >
         PLACE ORDER
       </button>
