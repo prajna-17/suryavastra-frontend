@@ -1,52 +1,64 @@
+// utils/wishlist.js
+import { getUserIdFromToken } from "./auth";
+// NOTE: Multi-user testing requires production email domain.
+// Logic is userId-based and production-safe.
+
+const getWishlistKey = () => {
+  const userId = getUserIdFromToken();
+  return userId ? `wishlist_${userId}` : "wishlist_guest";
+};
+
 export const getWishlist = () => {
   if (typeof window === "undefined") return [];
-  return JSON.parse(localStorage.getItem("wishlist")) || [];
+  return JSON.parse(localStorage.getItem(getWishlistKey())) || [];
 };
 
-// Add item only if not present
-export const addToWishlist = (product) => {
+export const addToWishlistIfNotExists = (item) => {
   const wishlist = getWishlist();
-  const exists = wishlist.find((item) => item.id === product.id);
 
-  if (!exists) {
-    wishlist.push({
-      id: product.id,
-      name:
-        product.name ||
-        product.title ||
-        product.productName ||
-        "Unnamed Product",
-      image: product.image,
-      price: product.price,
-      mrp: product.mrp,
-      discount: product.discount,
-    });
-    localStorage.setItem("wishlist", JSON.stringify(wishlist));
-    window.dispatchEvent(new Event("wishlist-updated"));
-  }
-};
+  if (wishlist.some((w) => w.variantId === item.variantId)) return;
 
-// Remove one item
-export const removeFromWishlist = (id) => {
-  const wishlist = getWishlist().filter((item) => item.id !== id);
-  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  wishlist.push(item);
+  localStorage.setItem(getWishlistKey(), JSON.stringify(wishlist));
   window.dispatchEvent(new Event("wishlist-updated"));
 };
 
-//  TOGGLE LOGIC ADDED (add/remove in single click)
-export const toggleWishlist = (product) => {
-  const wishlist = getWishlist();
-  const exists = wishlist.find((item) => item.id === product.id);
+export const removeFromWishlist = (variantId) => {
+  const wishlist = getWishlist().filter((item) => item.variantId !== variantId);
 
-  if (exists) {
-    // if present → remove
-    removeFromWishlist(product.id);
-  } else {
-    // if not present → add
-    addToWishlist(product);
-  }
+  localStorage.setItem(getWishlistKey(), JSON.stringify(wishlist));
+  window.dispatchEvent(new Event("wishlist-updated"));
 };
 
-export const isInWishlist = (id) => {
-  return getWishlist().some((item) => item.id === id);
+export const toggleWishlist = (item) => {
+  const wishlist = getWishlist();
+
+  const index = wishlist.findIndex((w) => w.variantId === item.variantId);
+
+  if (index > -1) {
+    wishlist.splice(index, 1);
+  } else {
+    wishlist.push({
+      variantId: item.variantId,
+      productId: item.productId,
+      color: item.color,
+      name: item.name,
+      image: item.image,
+      price: item.price,
+      mrp: item.mrp,
+      discount: item.discount,
+    });
+  }
+
+  localStorage.setItem(getWishlistKey(), JSON.stringify(wishlist));
+  window.dispatchEvent(new Event("wishlist-updated"));
+};
+
+export const isInWishlist = (variantId) => {
+  return getWishlist().some((item) => item.variantId === variantId);
+};
+
+export const clearWishlist = () => {
+  localStorage.removeItem(getWishlistKey());
+  window.dispatchEvent(new Event("wishlist-updated"));
 };

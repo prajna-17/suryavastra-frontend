@@ -1,19 +1,24 @@
 "use client";
+
 import Modal from "@/components/components-jsx/admin/Modal";
 import ConfirmModal from "@/components/components-jsx/admin/ConfirmModal";
 import "@/components/components-jsx/admin/modal.css";
 import "@/components/components-jsx/admin/confirmModal.css";
 import React, { useState, useEffect } from "react";
+import { useUploadThing } from "@/utils/upload";
 
-const API = process.env.NEXT_PUBLIC_API_URL; // http://localhost:5000/api
+const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AdminCategory() {
   const [categories, setCategories] = useState([]);
 
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
   useEffect(() => {
     fetch(`${API}/categories`)
       .then((r) => r.json())
-      .then((d) => setCategories(d))
+      .then((d) => setCategories(Array.isArray(d) ? d : []))
       .catch(() => console.log("Fetch error ❌"));
   }, []);
 
@@ -21,10 +26,18 @@ export default function AdminCategory() {
   const [editMode, setEditMode] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [name, setName] = useState("");
-  const [image, setImageUrl] = useState("");
+  const [image, setImage] = useState("");
+  const [preview, setPreview] = useState("");
   const [search, setSearch] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+
+  const { startUpload, isUploading } = useUploadThing("imageUploader", {
+    onClientUploadComplete: (res) => {
+      setImage(res[0].url);
+    },
+    onUploadError: () => alert("Upload failed ❌"),
+  });
 
   const filtered = categories.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
@@ -48,7 +61,8 @@ export default function AdminCategory() {
           onClick={() => {
             setEditMode(false);
             setName("");
-            setImageUrl("");
+            setImage("");
+            setPreview("");
             setOpenModal(true);
           }}
         >
@@ -72,7 +86,8 @@ export default function AdminCategory() {
                   setEditMode(true);
                   setCurrentId(cat._id);
                   setName(cat.name);
-                  setImageUrl(cat.image);
+                  setImage(cat.image);
+                  setPreview(cat.image);
                   setOpenModal(true);
                 }}
               >
@@ -95,7 +110,7 @@ export default function AdminCategory() {
         ))}
       </div>
 
-      {/* Create + Edit Modal */}
+      {/* MODAL */}
       <Modal
         open={openModal}
         title={editMode ? "Edit Category" : "Create Category"}
@@ -113,54 +128,68 @@ export default function AdminCategory() {
           type="file"
           accept="image/*"
           className="modal-input"
+          disabled={isUploading}
           onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) setImageUrl(URL.createObjectURL(f)); // upload later
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            setPreview(URL.createObjectURL(file));
+            startUpload([file]);
           }}
         />
 
-        {image && (
+        {preview && (
           <img
-            src={image}
-            style={{ width: 100, height: 100, borderRadius: 8, marginTop: 10 }}
+            src={preview}
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: 8,
+              marginTop: 10,
+            }}
           />
         )}
 
         <button
           className="primary-btn create-btn"
+          disabled={isUploading}
           onClick={async () => {
-            if (!name.trim()) return alert("Enter category name");
+            if (!name || !image) {
+              return alert("Name required & image upload must finish");
+            }
 
-            // 🔥 CREATE
+            const payload = { name, image };
+
             if (!editMode) {
               const r = await fetch(`${API}/categories`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, image }), // upload later
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
               });
 
               if (r.ok) {
                 const newCat = await r.json();
-                setCategories([...categories, newCat]);
+                setCategories((p) => [...p, newCat]);
                 alert("Created ✔");
-              } else alert("Failed ❌");
-            }
-
-            // 🔥 UPDATE
-            else {
+              } else alert("Create failed ❌");
+            } else {
               const r = await fetch(`${API}/categories/${currentId}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, image }),
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
               });
 
               if (r.ok) {
-                alert("Updated ✔");
-                setCategories(
-                  categories.map((c) =>
-                    c._id === currentId ? { ...c, name, image } : c
-                  )
+                setCategories((p) =>
+                  p.map((c) => (c._id === currentId ? { ...c, ...payload } : c))
                 );
+                alert("Updated ✔");
               } else alert("Update failed ❌");
             }
 
@@ -171,7 +200,6 @@ export default function AdminCategory() {
         </button>
       </Modal>
 
-      {/* DELETE CONFIRM */}
       <ConfirmModal
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
@@ -179,11 +207,14 @@ export default function AdminCategory() {
         onConfirm={async () => {
           const r = await fetch(`${API}/categories/${deleteId}`, {
             method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           });
 
           if (r.ok) {
+            setCategories((p) => p.filter((c) => c._id !== deleteId));
             alert("Deleted ✔");
-            setCategories(categories.filter((c) => c._id !== deleteId));
           } else alert("Delete failed ❌");
 
           setConfirmOpen(false);

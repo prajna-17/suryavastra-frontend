@@ -1,7 +1,21 @@
 "use client";
 import "@/app/globals.css";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import AdminLayout from "@/components/components-jsx/admin/AdminLayout";
+import { getToken, getRoleFromToken } from "@/utils/auth";
 
 export default function AdminRootLayout({ children }) {
-  return <AdminLayout>{children}</AdminLayout>; // ONLY THIS
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = getToken();
+    const role = getRoleFromToken();
+
+    if (!token || role !== "ADMIN") {
+      router.replace("/auth");
+    }
+  }, []);
+
+  return <AdminLayout>{children}</AdminLayout>;
 }

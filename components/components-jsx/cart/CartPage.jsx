@@ -10,6 +10,7 @@ import CouponSection from "./CouponSection";
 import PaymentSummary from "./PaymentSummary";
 import CartFooter from "./CartFooter";
 import TrustBadges from "./TrustBadges";
+import { toggleWishlist, addToWishlistIfNotExists } from "@/utils/wishlist";
 
 import { getCart, updateQty, removeFromCart } from "@/utils/cart"; // adjust path if needed
 
@@ -41,8 +42,8 @@ export default function CartPage() {
         {/*  DYNAMIC CART ITEMS */}
         {cartItems.map((item, index) => (
           <CartItem
-            key={`${item.id}-${index}`}
-            id={item.id}
+            key={item.variantId}
+            variantId={item.variantId}
             image={item.image}
             name={item.name}
             mrp={item.mrp}
@@ -52,17 +53,17 @@ export default function CartPage() {
             qty={item.qty}
             deliveryDate={item.deliveryDate}
             onIncrease={() => {
-              updateQty(item.id, item.qty + 1);
+              updateQty(item.variantId, item.qty + 1);
               refreshCart();
             }}
             onDecrease={() => {
               if (item.qty > 1) {
-                updateQty(item.id, item.qty - 1);
+                updateQty(item.variantId, item.qty - 1);
                 refreshCart();
               }
             }}
             onRemove={() => {
-              removeFromCart(item.id);
+              removeFromCart(item.variantId);
               refreshCart();
             }}
           />

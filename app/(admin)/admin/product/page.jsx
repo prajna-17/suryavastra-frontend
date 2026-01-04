@@ -18,10 +18,12 @@ export default function AdminProducts() {
   }, []);
 
   const loadData = async () => {
-    const prod = await fetch(`${API}/products`).then((res) => res.json());
-    const cats = await fetch(`${API}/categories`).then((res) => res.json());
-    setProducts(prod);
-    setCategories(cats);
+    const prodRes = await fetch(`${API}/products`).then((r) => r.json());
+    const catRes = await fetch(`${API}/categories`).then((r) => r.json());
+
+    // ✅ IMPORTANT FIX
+    setProducts(Array.isArray(prodRes) ? prodRes : prodRes.data || []);
+    setCategories(Array.isArray(catRes) ? catRes : catRes.data || []);
   };
 
   const [search, setSearch] = useState("");
@@ -36,14 +38,13 @@ export default function AdminProducts() {
     setConfirmOpen(true);
   };
 
-  // ⭐ backend delete added here
   const confirmDelete = async () => {
     const res = await fetch(`${API}/products/${deleteId}`, {
       method: "DELETE",
     });
 
     if (res.ok) {
-      setProducts(products.filter((p) => p._id !== deleteId));
+      setProducts((prev) => prev.filter((p) => p._id !== deleteId));
       alert("Product deleted ✔");
     } else {
       alert("Delete failed ❌");
@@ -56,7 +57,6 @@ export default function AdminProducts() {
     <div>
       <h1 className="page-title">Manage Products</h1>
 
-      {/* Search + Create */}
       <div className="cat-top-row">
         <div style={{ display: "flex", gap: 12 }}>
           <input
@@ -86,7 +86,6 @@ export default function AdminProducts() {
         </Link>
       </div>
 
-      {/* Product Grid */}
       <div className="product-grid">
         {filteredProducts.map((p) => (
           <div className="product-card" key={p._id}>
@@ -122,7 +121,6 @@ export default function AdminProducts() {
         ))}
       </div>
 
-      {/* Delete modal */}
       <ConfirmModal
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}

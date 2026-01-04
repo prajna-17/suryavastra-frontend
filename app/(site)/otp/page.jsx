@@ -1,12 +1,107 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { roboto } from "@/app/fonts";
 import { useRouter } from "next/navigation";
 
 export default function OtpPage() {
+  const [resendTimer, setResendTimer] = useState(30);
+  const [canResend, setCanResend] = useState(false);
+
+  const [verifying, setVerifying] = useState(false);
+
+  const [otp, setOtp] = useState("");
+  const phone =
+    typeof window !== "undefined" ? localStorage.getItem("phone") : "";
+
   const router = useRouter();
 
   const [showRegister, setShowRegister] = useState(false);
+  const handleVerifyOtp = async () => {
+    if (verifying) return;
+    setVerifying(true);
+
+    if (!phone) {
+      alert("Phone number missing. Please login again.");
+      setVerifying(false);
+      router.push("/auth");
+      return;
+    }
+
+    if (otp.length !== 6) {
+      alert("Please enter full 6-digit OTP");
+      setVerifying(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone,
+          otp,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem(
+          "isProfileComplete",
+          data.isProfileComplete ? "true" : "false"
+        );
+
+        if (data.role === "ADMIN") {
+          router.push("/admin");
+        } else {
+          if (data.isProfileComplete) {
+            router.push("/order"); // or cart/checkout page
+          } else {
+            setShowRegister(true); // ✅ CORRECT
+          }
+        }
+      } else {
+        alert(data.message || "Invalid OTP");
+      }
+    } catch (err) {
+      alert("Verification failed");
+    }
+    setVerifying(false);
+  };
+  const startResendTimer = () => {
+    setCanResend(false);
+    setResendTimer(30);
+
+    const interval = setInterval(() => {
+      setResendTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setCanResend(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  useEffect(() => {
+    startResendTimer();
+  }, []);
+
+  const handleResendOtp = async () => {
+    if (!canResend) return;
+
+    await fetch("http://localhost:5000/api/auth/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone }),
+    });
+
+    startResendTimer(); // 🔥 THIS WAS MISSING
+  };
 
   return (
     <div
@@ -46,6 +141,15 @@ export default function OtpPage() {
                   key={i}
                   maxLength={1}
                   type="text"
+                  value={otp[i] || ""}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setOtp((prev) => {
+                      const arr = prev.split("");
+                      arr[i] = value;
+                      return arr.join("");
+                    });
+                  }}
                   className="w-10 h-12 border border-[#6b3430] rounded text-center text-lg focus:border-[#591b16] focus:outline-none"
                 />
               ))}
@@ -56,8 +160,16 @@ export default function OtpPage() {
           </p>
 
           <p className="text-sm mt-4">
-            <span className="text-gray-600 underline">Resend</span>{" "}
-            <span className="font-semibold">in 02:55 sec</span>
+            {canResend ? (
+              <span
+                onClick={handleResendOtp}
+                className="text-[#6b3430] underline cursor-pointer"
+              >
+                Resend OTP
+              </span>
+            ) : (
+              <span className="text-gray-600">Resend in {resendTimer}s</span>
+            )}
           </p>
 
           <p className="text-xs text-gray-900 mt-25 text-center px-6 font-semibold">
@@ -67,7 +179,8 @@ export default function OtpPage() {
           </p>
 
           <button
-            onClick={() => setShowRegister(true)}
+            disabled={verifying}
+            onClick={handleVerifyOtp}
             className="bg-[#6b3430] text-white w-[95%] mt-6 py-2 rounded-md font-semibold active:scale-95"
           >
             Verify OTP

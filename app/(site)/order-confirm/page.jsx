@@ -15,6 +15,9 @@ export default function OrderConfirmPage() {
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
+    localStorage.removeItem("cart");
+    window.dispatchEvent(new Event("cart-updated"));
+
     setOrderNumber(Math.floor(Math.random() * 9000000 + 1000000));
     setToday(
       new Date().toLocaleDateString("en-US", {

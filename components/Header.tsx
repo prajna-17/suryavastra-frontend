@@ -1,7 +1,8 @@
 import { IoMdHeartEmpty } from "react-icons/io";
 import { IoCartOutline } from "react-icons/io5";
 import { LuMenu } from "react-icons/lu";
-
+import { clearCart } from "@/utils/cart";
+import { clearWishlist } from "@/utils/wishlist";
 function Header() {
   return (
     <header className="header">

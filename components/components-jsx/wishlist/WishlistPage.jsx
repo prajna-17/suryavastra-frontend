@@ -21,56 +21,65 @@ export default function WishlistPage() {
 
   useEffect(() => {
     const stored = getWishlist();
+    setWishlist(stored);
 
-    async function loadProducts() {
-      const result = [];
+    async function syncWishlist() {
+      const updated = [];
 
-      for (let item of stored) {
+      for (const item of stored) {
+        let data = null;
+
         try {
           const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/products/${item.id}`
+            `${process.env.NEXT_PUBLIC_API_URL}/products/${item.productId}`
           );
 
           if (res.ok) {
-            const data = await res.json();
-
-            result.push({
-              id: data._id,
-              name: data.title,
-              image: data.images[0],
-              price: data.price,
-              mrp: data.oldPrice,
-              discount: data.oldPrice
-                ? Math.round(
-                    ((data.oldPrice - data.price) / data.oldPrice) * 100
-                  ) + "%"
-                : "New",
-            });
+            data = await res.json();
           }
-        } catch (err) {
-          console.log("Invalid Wishlist Item Removed:", item.id);
+        } catch (_) {}
+
+        if (!data) {
+          updated.push(item);
+          continue;
         }
+
+        updated.push({
+          ...item,
+          name: data.title,
+          price: data.price,
+          mrp: data.oldPrice,
+          discount: getDiscount(data.price, data.oldPrice),
+          image:
+            data.colorImages?.find((c) => c.color === item.color)?.images[0] ||
+            data.images?.[0] ||
+            "/img/placeholder.png",
+        });
       }
 
-      setWishlist(result);
-      localStorage.setItem("wishlist", JSON.stringify(result)); // 🔥 cleans ghost items
+      setWishlist(updated);
+      localStorage.setItem("wishlist", JSON.stringify(updated));
     }
 
-    loadProducts();
+    syncWishlist();
   }, []);
 
   const moveToCart = (item) => {
     addToCart({
-      id: item.id,
-      name: item.name || item.title || "Unnamed Product", // ⭐ important
+      variantId: item.variantId,
+      productId: item.productId,
+      color: item.color,
+      name: item.name,
       image: item.image,
-      price: item.price,
-      mrp: item.mrp,
+      price: Number(item.price),
+      mrp: Number(item.mrp),
       discount: item.discount,
+      qty: 1,
     });
 
-    removeFromWishlist(item.id);
+    removeFromWishlist(item.variantId);
     setWishlist(getWishlist());
+    setShowCartModal({ show: true, item });
   };
 
   const handleRemove = (id) => {
@@ -102,7 +111,6 @@ export default function WishlistPage() {
 
       {/* Offer Banner */}
       <div className="flex items-center bg-[#c48a87] text-white w-full">
-        {/* Left Vertical Text */}
         <div className="flex flex-col items-center justify-center p-1 w-[50%] border-r border-white/40">
           <span className="text-[10px] tracking-wide rotate-270 -mb-3 -ml-15 relative top-[14px]">
             FLAT
@@ -115,7 +123,6 @@ export default function WishlistPage() {
           </span>
         </div>
 
-        {/* Right Info */}
         <div className="flex flex-col justify-center pl-20 py-3 w-[65%]">
           <span className="text-[13px] font-semibold leading-tight">
             Clearance Sale !
@@ -131,7 +138,7 @@ export default function WishlistPage() {
         <div className="grid grid-cols-2 gap-4 px-4 pb-20 mt-4 min-h-[34px]">
           {wishlist.map((item) => (
             <div
-              key={item.id}
+              key={item.variantId}
               className="bg-white border border-gray-200 rounded-lg flex flex-col overflow-hidden"
             >
               {/* IMAGE SECTION */}
@@ -144,15 +151,13 @@ export default function WishlistPage() {
                   className="object-cover"
                 />
 
-                {/* Remove Button */}
                 <button
-                  onClick={() => handleRemove(item.id)}
+                  onClick={() => handleRemove(item.variantId)}
                   className="absolute top-2 right-2 bg-white w-7 h-7 flex items-center justify-center rounded-full shadow text-[#6b3c32] font-bold"
                 >
                   ✕
                 </button>
 
-                {/* Discount Label */}
                 {item.discount && (
                   <span className="absolute bottom-0 right-0 bg-[#6b3c32] text-white text-[10px] px-2 py-[3px] rounded-tl-md">
                     {item.discount} OFF
@@ -184,12 +189,10 @@ export default function WishlistPage() {
                 </div>
 
                 {/* BUTTON */}
-                {/* BUTTON */}
                 <div className="relative w-full">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-
                       const btn = e.currentTarget;
 
                       // 1. Animation POP
@@ -201,31 +204,20 @@ export default function WishlistPage() {
                       pop.volume = 0.6;
                       pop.play();
 
-                      // 3. Add to Cart immediately
-                      addToCart({
-                        id: item.id,
-                        name: item.name,
-                        image: item.image,
-                        mrp: Number(item.mrp),
-                        price: Number(item.price),
-                        discount: item.discount,
-                      });
-
-                      // 4. Little delay so animation plays first
+                      // 3. Logic with transition
                       setTimeout(() => {
-                        // fade/slide remove class
                         const card = btn.closest(".bg-white");
-                        card.style.transition =
-                          "opacity .45s ease, transform .45s ease";
-                        card.style.opacity = "0";
-                        card.style.transform = "translateY(10px)";
+                        if (card) {
+                          card.style.transition =
+                            "opacity .45s ease, transform .45s ease";
+                          card.style.opacity = "0";
+                          card.style.transform = "translateY(10px)";
+                        }
 
                         setTimeout(() => {
-                          removeFromWishlist(item.id);
-                          setWishlist(getWishlist());
-                          setShowCartModal({ show: true, item });
-                        }, 450); // remove AFTER fade
-                      }, 600); // waits for button pop to finish
+                          moveToCart(item);
+                        }, 450);
+                      }, 600);
                     }}
                     className="w-full border border-[#6b3c32] text-[#6b3c32] py-1 text-[11px] rounded font-medium"
                   >

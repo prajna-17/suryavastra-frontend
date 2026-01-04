@@ -14,60 +14,58 @@ import CustomerReviewCarousel from "@/components/components-jsx/product/Customer
 import { roboto } from "@/app/fonts";
 import { FaBolt } from "react-icons/fa";
 import { addToCart } from "@/utils/cart";
-import { productDetails } from "@/data/data";
-import { toggleWishlist, isInWishlist } from "@/utils/wishlist";
+import {
+  isInWishlist,
+  addToWishlistIfNotExists,
+  removeFromWishlist,
+} from "@/utils/wishlist";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import ShareModal from "@/components/components-jsx/product/ShareModal";
 
-//  SMALL FIX FOR HEADER CART POP
+// SMALL FIX FOR HEADER CART POP
 function bounceCartIcon(attempt = 0) {
   const icon = document.querySelector(".cart-icon");
-
   if (icon) {
     icon.classList.add("cart-bounce");
     setTimeout(() => icon.classList.remove("cart-bounce"), 600);
     return;
   }
-
-  // Retry up to 10 times if header not loaded
   if (attempt < 10) {
     setTimeout(() => bounceCartIcon(attempt + 1), 150);
   }
 }
 
 export default function ProductPage({ product }) {
+  // Logic to determine the primary color (Matches the ProductCard logic)
+  const primaryColor = product.colors?.[0] || product.mainColor || "Default";
+
+  const allColorOptions = [
+    {
+      color: primaryColor,
+      images: product.images || [],
+    },
+    ...(product.colorImages || []),
+  ];
+
+  const [showCartModal, setShowCartModal] = useState(false);
+  const [selectedColor, setSelectedColor] = useState(primaryColor);
   const [liked, setLiked] = useState(false);
   const [message, setMessage] = useState(null);
-  function showBottomMessage(text) {
-    setMessage(text);
-    setTimeout(() => setMessage(null), 2000); // auto hide
-  }
-
-  useEffect(() => {
-    setLiked(isInWishlist(product.id));
-  }, []);
-  const [showCartModal, setShowCartModal] = useState(false);
-
-  const images = product.images?.length ? product.images : [product.image];
-  const colorImages = product.colorImages?.length
-    ? product.colorImages
-    : product.images; // fallback to product images for now
-
-  const displayName = product.title;
-  const price = product.oldPrice || product.price;
-  const discountedPrice = product.price;
-  const off = product.oldPrice
-    ? `${Math.round(
-        ((product.oldPrice - product.price) / product.oldPrice) * 100
-      )}%`
-    : "New";
-
+  const [activeImages, setActiveImages] = useState(
+    allColorOptions[0]?.images || []
+  );
   const [activeIndex, setActiveIndex] = useState(0);
-  const startX = useRef(0);
-  const isDragging = useRef(false);
   const [shareOpen, setShareOpen] = useState(false);
 
+  const startX = useRef(0);
+  const isDragging = useRef(false);
+
   const productLink = typeof window !== "undefined" ? window.location.href : "";
+
+  function showBottomMessage(text) {
+    setMessage(text);
+    setTimeout(() => setMessage(null), 2000);
+  }
 
   function showToast(msg) {
     const toast = document.createElement("div");
@@ -87,6 +85,28 @@ export default function ProductPage({ product }) {
     document.body.appendChild(heart);
     setTimeout(() => heart.remove(), 700);
   }
+
+  // 🔥 Sync Liked State with LocalStorage/Wishlist
+  useEffect(() => {
+    const syncLiked = () => {
+      const variantId = `${product._id}-${selectedColor}`;
+      setLiked(isInWishlist(variantId));
+    };
+
+    syncLiked();
+    window.addEventListener("wishlist-updated", syncLiked);
+    return () => window.removeEventListener("wishlist-updated", syncLiked);
+  }, [product._id, selectedColor]);
+
+  const images = activeImages;
+  const displayName = product.title;
+  const price = product.oldPrice || product.price;
+  const discountedPrice = product.price;
+  const off = product.oldPrice
+    ? `${Math.round(
+        ((product.oldPrice - product.price) / product.oldPrice) * 100
+      )}%`
+    : "New";
 
   return (
     <section className="w-full max-w-[480px] mx-auto">
@@ -166,22 +186,36 @@ export default function ProductPage({ product }) {
             <button
               className="border rounded-md p-2 text-gray-600 relative"
               onClick={(e) => {
-                toggleWishlist({
-                  id: product.id,
-                  name: product.name,
-                  image: product.images?.[0] || product.image,
-                  price: discountedPrice,
-                  mrp: price,
-                  discount: off,
-                });
-                setLiked(!liked);
-                popHeart(e);
-                showToast(
-                  liked ? "Removed from Wishlist" : "Added to Wishlist"
-                );
-                const audio = new Audio("/sounds/pop.mp3");
-                audio.volume = 0.6;
-                audio.play();
+                e.stopPropagation();
+                const variantId = `${product._id}-${selectedColor}`;
+
+                if (liked) {
+                  // 1. IF ALREADY LIKED -> REMOVE
+                  removeFromWishlist(variantId);
+                  setLiked(false);
+                  showToast("Removed from Wishlist");
+                } else {
+                  // 2. IF NOT LIKED -> ADD
+                  addToWishlistIfNotExists({
+                    variantId,
+                    productId: product._id,
+                    color: selectedColor,
+                    name: product.title,
+                    image: activeImages[0],
+                    price: discountedPrice,
+                    mrp: price,
+                    discount: off,
+                  });
+
+                  setLiked(true);
+                  showToast("Added to Wishlist");
+
+                  // Visual effects only on Add
+                  popHeart(e);
+                  const audio = new Audio("/sounds/pop.mp3");
+                  audio.volume = 0.6;
+                  audio.play();
+                }
               }}
             >
               {liked ? (
@@ -208,7 +242,6 @@ export default function ProductPage({ product }) {
             {off} OFF
           </span>
         </div>
-
         <p className="text-xs text-gray-500 mt-1">Inclusive of all taxes.</p>
       </div>
 
@@ -219,17 +252,27 @@ export default function ProductPage({ product }) {
       {/* Colors */}
       <div className="mt-4 px-4">
         <p className="text-sm font-medium mb-2">
-          Colour:{" "}
-          <span className="font-normal">{product.colors?.[0] || "N/A"}</span>
+          Colour: <span className="font-normal">{selectedColor}</span>
         </p>
 
         <div className="flex gap-3 overflow-x-auto scrollbar-hide">
-          {colorImages.map((c, i) => (
+          {allColorOptions.map((c, i) => (
             <button
               key={i}
-              className="w-16 h-20 rounded-md overflow-hidden border border-gray-300"
+              className={`w-16 h-20 rounded-md overflow-hidden border ${
+                selectedColor === c.color ? "border-black" : "border-gray-300"
+              }`}
+              onClick={() => {
+                setSelectedColor(c.color);
+                setActiveImages(c.images);
+                setActiveIndex(0);
+              }}
             >
-              <img src={c} className="w-full h-full object-cover" />
+              <img
+                src={c.images[0]}
+                alt={c.color}
+                className="w-full h-full object-cover"
+              />
             </button>
           ))}
         </div>
@@ -237,54 +280,58 @@ export default function ProductPage({ product }) {
 
       <PromotionCards />
 
-      {/* Buttons */}
+      {/* Action Buttons */}
       <div className="mt-6 px-4 flex gap-3">
         <button
           className="flex-1 border text-[#8b5e55] py-3 rounded flex items-center justify-center gap-2"
           onClick={() => {
             const data = {
-              id: product.id,
-              name: product.name,
+              id: product._id,
+              name: product.title,
               image: product.images?.[0] || product.image,
               mrp: price,
               price: discountedPrice,
               discount: off,
               qty: 1,
             };
-
             localStorage.setItem("checkoutProduct", JSON.stringify(data));
-            window.location.href = "/order"; // <-- Final route
+            window.location.href = "/order";
           }}
         >
           <HiOutlineShoppingBag /> BUY NOW
         </button>
-
         <div className="flex-1 relative">
           <button
             onClick={(e) => {
               const wrapper = e.currentTarget.parentElement;
 
+              // 1. Create the unique variant ID
+              const variantId = `${product._id}-${selectedColor}`;
+
+              // 2. Pass the data to your addToCart utility
+              // Your utility should handle the logic:
+              // "If variantId exists, qty++, else push new item"
               addToCart({
-                id: product.id,
-                name: product.name,
-                image: product.images?.[0] || product.image,
-                mrp: price,
+                productId: product._id,
+                variantId: variantId, // CRITICAL: This must match what Home Page sends
+                color: selectedColor,
+                name: product.title,
+                image: activeImages[0],
                 price: discountedPrice,
+                mrp: price,
                 discount: off,
-                rating: 5,
+                qty: 1, // Start with 1, utility should increment if duplicate
                 deliveryDate: "Monday, 22nd Dec",
               });
 
+              // 3. UI Feedback
               wrapper.classList.add("cart-anim");
-
               setTimeout(() => {
                 const audio = new Audio("/sounds/pop.mp3");
                 audio.volume = 0.6;
                 audio.play();
                 wrapper.classList.remove("cart-anim");
                 setShowCartModal(true);
-
-                //  NOW POPS IN HEADER FOR PRODUCT PAGE TOO
                 bounceCartIcon();
               }, 700);
             }}

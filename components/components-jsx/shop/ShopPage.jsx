@@ -103,6 +103,7 @@ export default function ShopPage() {
       </div>
 
       {/* PRODUCTS GRID */}
+      {/* PRODUCTS GRID */}
       <div className="grid grid-cols-2 gap-3 px-3">
         {visibleProducts.map((item) => (
           <ProductCard
@@ -112,6 +113,8 @@ export default function ShopPage() {
             name={item.title}
             price={item.price}
             origPrice={item.oldPrice}
+            // ADD THIS LINE: Pass the dynamic color
+            color={item.colors?.[0] || "Default"}
             discount={getDiscount(item.price, item.oldPrice)}
           />
         ))}

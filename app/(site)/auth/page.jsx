@@ -1,10 +1,41 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { roboto } from "@/app/fonts";
 
 export default function AuthPage() {
+  const [sendingOtp, setSendingOtp] = useState(false);
+
+  const [phone, setPhone] = useState("");
+
   const router = useRouter();
+
+  const handleSendOtp = async () => {
+    if (sendingOtp) return; // 🔒 STOP DUPLICATE OTP
+    setSendingOtp(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ phone }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("phone", phone);
+        router.push("/otp");
+      } else {
+        alert(data.message || "Failed to send OTP");
+      }
+    } catch (err) {
+      alert("Something went wrong");
+    }
+    setSendingOtp(false);
+  };
 
   return (
     <div
@@ -31,6 +62,8 @@ export default function AuthPage() {
         <input
           type="text"
           placeholder="Enter your Mobile Number"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
           className="border rounded-md p-2 w-full focus:outline-none"
         />
       </div>
@@ -50,7 +83,7 @@ export default function AuthPage() {
 
       {/* Continue Button */}
       <button
-        onClick={() => router.push("/otp")}
+        onClick={handleSendOtp}
         className="bg-[#6b3430] text-white w-85 mt-6 py-2 rounded-md font-semibold active:scale-95"
       >
         Continue

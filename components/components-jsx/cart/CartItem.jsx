@@ -2,9 +2,10 @@ import Image from "next/image";
 import getDiscount from "@/utils/getDiscount";
 import { Heart, Trash2 } from "lucide-react";
 import { roboto } from "@/app/fonts";
+import { toggleWishlist, addToWishlistIfNotExists } from "@/utils/wishlist";
 
 export default function CartItem({
-  id,
+  variantId,
   image,
   name,
   price,
@@ -123,17 +124,19 @@ export default function CartItem({
         {/* Move to Wishlist */}
         <button
           onClick={() => {
-            import("@/utils/wishlist").then(({ toggleWishlist }) => {
-              toggleWishlist({
-                id, // ← use actual product id
-                name,
-                image,
-                price,
-                mrp,
-                discount: getDiscount(price, mrp),
-              });
-            });
+            // FIX: Parse the color from the variantId instead of hardcoding "Default"
+            const [pid, colorName] = variantId.split("-");
 
+            addToWishlistIfNotExists({
+              variantId,
+              productId: pid,
+              color: colorName || "Default", // Use the actual color
+              name,
+              image,
+              price,
+              mrp,
+              discount,
+            });
             const box = document.getElementById(
               `cart-${name.replace(/\s/g, "")}`
             );

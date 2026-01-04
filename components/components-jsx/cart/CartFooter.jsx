@@ -22,15 +22,24 @@ export default function CartFooter() {
       window.removeEventListener("storage", updateCart);
     };
   }, []);
+  const handlePlaceOrder = () => {
+    if (!cartCount) return;
 
+    const token = localStorage.getItem("token");
+    localStorage.removeItem("checkoutProduct");
+
+    const profileComplete = localStorage.getItem("isProfileComplete");
+
+    if (!token) {
+      router.push("/auth"); // not logged in
+    } else {
+      router.push("/order"); // logged in & existing user
+    }
+  };
   return (
     <button
       disabled={cartCount === 0}
-      onClick={() => {
-        if (!cartCount) return;
-        localStorage.removeItem("checkoutProduct");
-        router.push("/auth");
-      }}
+      onClick={handlePlaceOrder}
       className={`fixed bottom-4 left-4 right-4 py-4 rounded-lg font-semibold text-center 
       active:scale-95 transition 
       ${roboto.className} 

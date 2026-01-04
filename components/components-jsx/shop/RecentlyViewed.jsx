@@ -12,7 +12,7 @@ export default function RecentlyViewed() {
   useEffect(() => {
     const map = {};
     recentlyViewedProducts.forEach((p) => {
-      map[p.id] = isInWishlist(p.id);
+      map[p.id] = isInWishlist(`${p.id}-Default`);
     });
     setWish(map);
   }, []);
@@ -40,9 +40,12 @@ export default function RecentlyViewed() {
 
   const toggle = (p, e) => {
     toggleWishlist({
-      id: p.id,
-      image: p.image,
+      variantId: `${p.id}-Default`,
+      productId: p.id,
+      color: "Default",
+
       name: p.name,
+      image: p.image || "/img/placeholder.png",
       price: p.price,
       mrp: p.oldPrice,
       discount: p.discount,

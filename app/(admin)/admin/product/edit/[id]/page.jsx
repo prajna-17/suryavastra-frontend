@@ -3,18 +3,25 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { API } from "@/utils/api";
+import { useUploadThing } from "@/utils/upload";
 import "@/components/components-jsx/admin/modal.css";
 import "@/components/components-jsx/admin/confirmModal.css";
 
 export default function EditProductPage() {
   const router = useRouter();
   const { id } = useParams();
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : "";
+
+  const { startUpload } = useUploadThing("imageUploader");
 
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
 
-  // FORM STATES
-  const [image, setImageUrl] = useState("");
+  const [images, setImages] = useState([]);
+  const [colorImages, setColorImages] = useState([]);
+  const [currentColor, setCurrentColor] = useState("");
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -26,21 +33,22 @@ export default function EditProductPage() {
   const [sellingCategory, setSellingCategory] = useState("featured");
   const [inStock, setInStock] = useState(true);
 
+  const mainFileRef = React.useRef(null);
+  const colorFileRef = React.useRef(null);
+
   useEffect(() => {
     loadProduct();
     loadCategories();
   }, []);
 
-  // 🔹 fetch selected product
   const loadProduct = async () => {
     const res = await fetch(`${API}/products/${id}`);
     const data = await res.json();
 
-    if (!res.ok) return alert("Product not found ❌");
-
     setTitle(data.title);
     setDescription(data.description);
-    setImageUrl(data.images?.[0] || "");
+    setImages(data.images || []);
+    setColorImages(data.colorImages || []);
     setPrice(data.price);
     setOldPrice(data.oldPrice || "");
     setQuantity(data.quantity);
@@ -53,18 +61,74 @@ export default function EditProductPage() {
     setLoading(false);
   };
 
-  // 🔹 category for dropdown
   const loadCategories = async () => {
     const res = await fetch(`${API}/categories`);
     setCategories(await res.json());
   };
 
-  // 🔥 UPDATE PRODUCT API
+  const handleImageUpload = async (files) => {
+    const previews = Array.from(files).map((f) => URL.createObjectURL(f));
+    setImages((p) => [...p, ...previews]);
+
+    const uploaded = await startUpload(Array.from(files));
+    if (uploaded) {
+      setImages((p) => [
+        ...p.filter((i) => !i.startsWith("blob:")),
+        ...uploaded.map((u) => u.url),
+      ]);
+    }
+  };
+
+  const removeMainImage = (index) => {
+    setImages((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+
+      if (updated.length === 0 && mainFileRef.current) {
+        mainFileRef.current.value = "";
+      }
+
+      return updated;
+    });
+  };
+
+  const handleColorUpload = async (files) => {
+    if (!currentColor.trim()) return alert("Enter color first");
+
+    const upload = await startUpload(files);
+    if (upload) {
+      setColorImages((p) => [
+        ...p,
+        { color: currentColor, images: upload.map((u) => u.url) },
+      ]);
+      setCurrentColor("");
+    }
+  };
+
+  const removeColorImage = (colorIndex, imageIndex) => {
+    setColorImages((prev) => {
+      const updated = [...prev];
+
+      updated[colorIndex].images.splice(imageIndex, 1);
+
+      // 🔥 remove color block if no images left
+      if (updated[colorIndex].images.length === 0) {
+        updated.splice(colorIndex, 1);
+      }
+
+      if (colorFileRef.current) {
+        colorFileRef.current.value = "";
+      }
+
+      return updated;
+    });
+  };
+
   const updateProduct = async () => {
     const body = {
       title,
       description,
-      images: [image], // no upload now
+      images,
+      colorImages,
       price: Number(price),
       oldPrice: Number(oldPrice),
       quantity: Number(quantity),
@@ -77,14 +141,19 @@ export default function EditProductPage() {
 
     const res = await fetch(`${API}/products/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(body),
     });
 
     if (res.ok) {
       alert("Product Updated ✔");
       router.push("/admin/product");
-    } else alert("Failed to update ❌");
+    } else {
+      alert("Failed ❌");
+    }
   };
 
   if (loading) return <div style={{ padding: 30 }}>Loading...</div>;
@@ -94,15 +163,41 @@ export default function EditProductPage() {
       <h1 className="page-title">Edit Product</h1>
 
       <div className="create-prod-form">
-        {/* Preview */}
-        {image && (
-          <img
-            src={image}
-            alt="preview"
-            className="preview-img"
-            style={{ width: 140, height: 140, marginBottom: 10 }}
-          />
-        )}
+        <input
+          ref={mainFileRef}
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e.target.files)}
+        />
+
+        <div className="image-preview-box">
+          {images.map((img, i) => (
+            <div key={i} style={{ position: "relative" }}>
+              <img src={img} className="preview-img" />
+              <span
+                onClick={() => removeMainImage(i)}
+                style={{
+                  position: "absolute",
+                  top: -6,
+                  right: -6,
+                  background: "#000",
+                  color: "#fff",
+                  borderRadius: "50%",
+                  width: 18,
+                  height: 18,
+                  fontSize: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                ✕
+              </span>
+            </div>
+          ))}
+        </div>
 
         <input
           className="modal-input"
@@ -118,24 +213,65 @@ export default function EditProductPage() {
           placeholder="Description"
         />
 
-        <select
-          className="modal-input"
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-        >
-          <option value="">Select Category</option>
-          {categories.map((c) => (
-            <option key={c._id} value={c._id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-
         <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImageUrl(URL.createObjectURL(e.target.files[0]))}
+          className="modal-input"
+          placeholder="Color (Red / Blue)"
+          value={currentColor}
+          onChange={(e) => setCurrentColor(e.target.value)}
         />
+        <input
+          ref={colorFileRef}
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => handleColorUpload([...e.target.files])}
+        />
+
+        {colorImages.length > 0 && (
+          <div
+            style={{
+              marginTop: 10,
+              display: "flex",
+              gap: 16,
+              flexWrap: "wrap",
+            }}
+          >
+            {colorImages.map((c, i) => (
+              <div key={i}>
+                <p style={{ fontSize: 12, fontWeight: 500 }}>
+                  Color: {c.color}
+                </p>
+                <div className="image-preview-box">
+                  {c.images.map((img, idx) => (
+                    <div key={idx} style={{ position: "relative" }}>
+                      <img src={img} className="preview-img" />
+                      <span
+                        onClick={() => removeColorImage(i, idx)}
+                        style={{
+                          position: "absolute",
+                          top: -6,
+                          right: -6,
+                          background: "#000",
+                          color: "#fff",
+                          borderRadius: "50%",
+                          width: 18,
+                          height: 18,
+                          fontSize: 12,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                        }}
+                      >
+                        ✕
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <input
           className="modal-input"
@@ -161,32 +297,6 @@ export default function EditProductPage() {
           onChange={(e) => setSizes(e.target.value)}
           placeholder="Sizes (S,M,L)"
         />
-        <input
-          className="modal-input"
-          value={colors}
-          onChange={(e) => setColors(e.target.value)}
-          placeholder="Colors"
-        />
-
-        <select
-          className="modal-input"
-          value={sellingCategory}
-          onChange={(e) => setSellingCategory(e.target.value)}
-        >
-          <option value="featured">Featured</option>
-          <option value="on-selling">On Selling</option>
-          <option value="best-selling">Best Selling</option>
-          <option value="top-rating">Top Rating</option>
-        </select>
-
-        <div className="instock-row">
-          <input
-            type="checkbox"
-            checked={inStock}
-            onChange={(e) => setInStock(e.target.checked)}
-          />
-          <label>In Stock</label>
-        </div>
 
         <button className="primary-btn create-btn" onClick={updateProduct}>
           Update Product

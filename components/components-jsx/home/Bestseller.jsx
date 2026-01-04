@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { robotoSlab } from "@/app/fonts";
 import ProductCard from "../ui/ProductCard";
 import Link from "next/link";
+import { getDiscount } from "@/utils/getDiscount";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -46,6 +47,8 @@ export default function BestSeller() {
               name={item.title}
               price={item.price}
               origPrice={item.oldPrice}
+              // Pass the first color from the colors array
+              color={item.colors?.[0] || "Default"}
               discount={
                 item.oldPrice
                   ? Math.round(

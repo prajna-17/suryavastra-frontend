@@ -2,27 +2,55 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("phone");
+    localStorage.removeItem("isProfileComplete");
+    router.push("/auth");
+  };
   return (
     <div className="admin-main">
       {/* HEADER */}
-      <header className="admin-header">
-        <div className="header-left">
+      <header
+        className="admin-header"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        {/* LEFT SIDE */}
+        <div
+          className="header-left"
+          style={{ display: "flex", alignItems: "center", gap: 12 }}
+        >
           <button className="sidebar-btn" onClick={() => setOpen(!open)}>
             ☰
           </button>
 
-          {/* <img
-            src="/a2.png" // your logo
-            alt="logo"
-            className="admin-logo"
-          /> */}
-
           <span className="admin-app-name">SuryaVastra</span>
         </div>
+
+        {/* RIGHT SIDE */}
+        <button
+          onClick={handleLogout}
+          style={{
+            marginRight: 20,
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: 600,
+            color: "#6b3430",
+          }}
+        >
+          Logout
+        </button>
       </header>
 
       {/* SIDEBAR */}
@@ -37,6 +65,9 @@ export default function AdminLayout({ children }) {
 
         <Link href="/admin/product" className="admin-link">
           Products
+        </Link>
+        <Link href="/admin/create-admin" className="admin-link">
+          Create Admin
         </Link>
       </aside>
 

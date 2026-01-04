@@ -3,7 +3,12 @@
 import { FiHeart } from "react-icons/fi";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { toggleWishlist, isInWishlist } from "@/utils/wishlist";
+import {
+  toggleWishlist,
+  isInWishlist,
+  addToWishlistIfNotExists,
+  removeFromWishlist,
+} from "@/utils/wishlist";
 import { addToCart } from "@/utils/cart";
 
 export default function ProductCard({
@@ -13,9 +18,12 @@ export default function ProductCard({
   name,
   price,
   origPrice,
+  color, // 1. Accept the dynamic color prop // Receive the color prop
 }) {
   const [liked, setLiked] = useState(false);
+  const variantId = `${id}-${color}`; // Create a consistent variantId
   const [showCartModal, setShowCartModal] = useState(false);
+  console.log("HOME CARD ID:", id);
 
   function showToast(msg) {
     const toast = document.createElement("div");
@@ -26,8 +34,13 @@ export default function ProductCard({
   }
 
   useEffect(() => {
-    setLiked(isInWishlist(id));
-  }, [id]);
+    const syncLiked = () => {
+      setLiked(isInWishlist(variantId)); // Check against the specific variant
+    };
+    syncLiked();
+    window.addEventListener("wishlist-updated", syncLiked);
+    return () => window.removeEventListener("wishlist-updated", syncLiked);
+  }, [variantId]);
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg relative overflow-visible">
@@ -49,23 +62,31 @@ export default function ProductCard({
               e.preventDefault();
               e.stopPropagation();
 
-              toggleWishlist({
-                id,
-                image,
-                name,
-                price,
-                mrp: origPrice,
-                discount,
-              });
+              if (liked) {
+                // REMOVE
+                removeFromWishlist(variantId);
+                setLiked(false);
+                showToast("Removed from Wishlist");
+              } else {
+                addToWishlistIfNotExists({
+                  variantId,
+                  productId: id,
+                  color,
+                  name,
+                  image,
+                  price,
+                  mrp: origPrice,
+                  discount,
+                });
 
-              setLiked((prev) => !prev);
-              // toast message
-              +showToast(liked ? "Removed from Wishlist" : "Added to Wishlist");
-              // sound
-              const audio = new Audio("/sounds/pop.mp3");
-              audio.volume = 0.6;
-              audio.play();
-
+                +showToast(
+                  liked ? "Removed from Wishlist" : "Added to Wishlist"
+                );
+                // sound
+                const audio = new Audio("/sounds/pop.mp3");
+                audio.volume = 0.6;
+                audio.play();
+              }
               // pop heart
               const heart = document.createElement("div");
               heart.innerHTML = "🤎";
@@ -116,7 +137,17 @@ export default function ProductCard({
           onClick={(e) => {
             e.stopPropagation();
 
-            addToCart({ id, name, image, price, mrp: origPrice, discount });
+            addToCart({
+              productId: id,
+              variantId: variantId,
+              color: color,
+              name,
+              image,
+              price,
+              mrp: origPrice,
+              discount,
+              deliveryDate: "Monday, 22nd Dec",
+            });
 
             const card = e.currentTarget;
             card.classList.add("cart-anim");
