@@ -24,7 +24,6 @@ export default function OrderPage() {
 
     setHydrated(true);
 
-    // Live update on remove / qty change
     const update = () => setCartItems(getCart());
 
     window.addEventListener("cart-updated", update);
@@ -54,6 +53,7 @@ export default function OrderPage() {
             Deliver To
           </h2>
         </div>
+
         <div className="border border-dashed border-[#6b3430] rounded-lg p-3 flex items-center justify-between mt-7">
           <div className="text-sm text-[#0c0b0b] font-medium leading-tight">
             {address ? (
@@ -88,6 +88,13 @@ export default function OrderPage() {
             </button>
           )}
         </div>
+
+        {/* ADDRESS REQUIRED MESSAGE */}
+        {!address && (
+          <p className="text-xs text-red-600 mt-2 font-semibold">
+            Please add delivery address to continue
+          </p>
+        )}
       </div>
 
       {/* Payment Section */}
@@ -152,7 +159,6 @@ export default function OrderPage() {
               </p>
             </div>
 
-            {/* REMOVE with confirmation + animation */}
             <Trash2
               size={18}
               className="text-[#534b4a] cursor-pointer"
@@ -160,27 +166,17 @@ export default function OrderPage() {
                 const popup = document.createElement("div");
                 popup.className = "confirm-remove-box";
                 popup.innerHTML = `
-                    <div class="confirm-text">Remove item from cart?</div>
-                    <div class="confirm-actions">
-                        <button class="confirm-yes">Yes</button>
-                        <button class="confirm-no">No</button>
-                    </div>`;
+                  <div class="confirm-text">Remove item from cart?</div>
+                  <div class="confirm-actions">
+                    <button class="confirm-yes">Yes</button>
+                    <button class="confirm-no">No</button>
+                  </div>`;
                 document.body.appendChild(popup);
 
                 popup.querySelector(".confirm-yes").onclick = () => {
-                  const row = document.getElementById(`order-${item.id}`);
-                  row?.classList.add("slide-remove"); // <-- triggers same animation
-
-                  const audio = new Audio("/sounds/pop.mp3");
-                  audio.volume = 0.6;
-                  audio.play();
-
-                  setTimeout(() => {
-                    removeFromCart(item.id);
-                    refreshCart();
-                    window.dispatchEvent(new Event("cart-updated"));
-                  }, 400);
-
+                  removeFromCart(item.id);
+                  refreshCart();
+                  window.dispatchEvent(new Event("cart-updated"));
                   popup.remove();
                 };
 
@@ -192,11 +188,17 @@ export default function OrderPage() {
         ))}
       </div>
 
-      {/* Bottom Button - LIVE Disable */}
+      {/* Bottom Button */}
       <button
-        onClick={() =>
-          cartItems.length > 0 && (window.location.href = "/payment")
-        }
+        onClick={() => {
+          if (!address) {
+            alert("Please add delivery address before proceeding");
+            return;
+          }
+          if (cartItems.length > 0) {
+            window.location.href = "/payment";
+          }
+        }}
         disabled={cartItems.length === 0}
         className={`fixed bottom-4 left-4 right-4 py-3 rounded-md font-semibold text-white active:scale-95
         ${

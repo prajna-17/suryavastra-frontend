@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { roboto } from "@/app/fonts";
 import { getCart } from "@/utils/cart";
 import { useEffect, useState } from "react";
+import { getUserIdFromToken } from "@/utils/auth";
 
 export default function OrderConfirmPage() {
   const [orderNumber, setOrderNumber] = useState(null);
@@ -15,7 +16,13 @@ export default function OrderConfirmPage() {
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    localStorage.removeItem("cart");
+    const userId = getUserIdFromToken();
+
+    if (userId) {
+      localStorage.removeItem(`cart_${userId}`);
+    }
+
+    localStorage.removeItem("checkoutProduct"); // safety
     window.dispatchEvent(new Event("cart-updated"));
 
     setOrderNumber(Math.floor(Math.random() * 9000000 + 1000000));

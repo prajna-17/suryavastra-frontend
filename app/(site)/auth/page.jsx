@@ -7,7 +7,7 @@ import { roboto } from "@/app/fonts";
 export default function AuthPage() {
   const [sendingOtp, setSendingOtp] = useState(false);
 
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
 
   const router = useRouter();
 
@@ -20,13 +20,13 @@ export default function AuthPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ email }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        localStorage.setItem("phone", phone);
+        localStorage.setItem("email", email);
         router.push("/otp");
       } else {
         alert(data.message || "Failed to send OTP");
@@ -55,15 +55,11 @@ export default function AuthPage() {
 
       {/* Input Box */}
       <div className="flex items-center gap-5 mt-8 w-90 border-[#6b3430]">
-        <select className="border rounded-md border-[#6b3430] p-2 w-5 focus:outline-none self-start">
-          <option>+91</option>
-        </select>
-
         <input
           type="text"
-          placeholder="Enter your Mobile Number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Enter your Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="border rounded-md p-2 w-full focus:outline-none"
         />
       </div>
@@ -83,6 +79,7 @@ export default function AuthPage() {
 
       {/* Continue Button */}
       <button
+        disabled={sendingOtp}
         onClick={handleSendOtp}
         className="bg-[#6b3430] text-white w-85 mt-6 py-2 rounded-md font-semibold active:scale-95"
       >

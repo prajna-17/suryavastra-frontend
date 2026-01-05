@@ -10,8 +10,8 @@ export default function OtpPage() {
   const [verifying, setVerifying] = useState(false);
 
   const [otp, setOtp] = useState("");
-  const phone =
-    typeof window !== "undefined" ? localStorage.getItem("phone") : "";
+  const email =
+    typeof window !== "undefined" ? localStorage.getItem("email") : "";
 
   const router = useRouter();
 
@@ -20,8 +20,8 @@ export default function OtpPage() {
     if (verifying) return;
     setVerifying(true);
 
-    if (!phone) {
-      alert("Phone number missing. Please login again.");
+    if (!email) {
+      alert("Email missing. Please login again.");
       setVerifying(false);
       router.push("/auth");
       return;
@@ -39,16 +39,25 @@ export default function OtpPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          phone,
-          otp,
-        }),
+        body: JSON.stringify({ email, otp }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
         localStorage.setItem("token", data.token);
+        // 🔁 MIGRATE GUEST CART → USER CART
+        const userId = JSON.parse(atob(data.token.split(".")[1])).userId;
+
+        const guestCart = JSON.parse(localStorage.getItem("cart_guest")) || [];
+        const userCartKey = `cart_${userId}`;
+
+        if (guestCart.length > 0) {
+          localStorage.setItem(userCartKey, JSON.stringify(guestCart));
+          localStorage.removeItem("cart_guest");
+          window.dispatchEvent(new Event("cart-updated"));
+        }
+
         localStorage.setItem(
           "isProfileComplete",
           data.isProfileComplete ? "true" : "false"
@@ -97,7 +106,7 @@ export default function OtpPage() {
     await fetch("http://localhost:5000/api/auth/send-otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone }),
+      body: JSON.stringify({ email }),
     });
 
     startResendTimer(); // 🔥 THIS WAS MISSING
