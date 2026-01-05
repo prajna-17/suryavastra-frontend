@@ -19,7 +19,7 @@ export default function OrderPage() {
     if (single) setCartItems([single]);
     else setCartItems(getCart());
 
-    const saved = localStorage.getItem("userAddress");
+    const saved = localStorage.getItem("shippingAddress");
     if (saved) setAddress(JSON.parse(saved));
 
     setHydrated(true);
@@ -58,11 +58,18 @@ export default function OrderPage() {
           <div className="text-sm text-[#0c0b0b] font-medium leading-tight">
             {address ? (
               <>
-                <span className="font-semibold">{address.name}</span>
-                <br />
-                <span className="font-normal">
-                  {address.details}, {address.city} - {address.pincode}
-                </span>
+                {/* Name */}
+                <div className="font-semibold text-sm">{address.fullName}</div>
+
+                {/* Address details */}
+                <div className="text-sm text-gray-700 mt-1 leading-snug">
+                  {address.addressLine}, {address.locality}
+                </div>
+
+                {/* City + State + Pincode */}
+                <div className="text-sm text-gray-700">
+                  {address.city}, {address.state} – {address.postalCode}
+                </div>
               </>
             ) : (
               "No saved address"

@@ -14,26 +14,95 @@ export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState([]);
   const [hydrated, setHydrated] = useState(false);
 
-  // ⬇⬇ Only this part updated
   useEffect(() => {
     const checkoutProduct = JSON.parse(localStorage.getItem("checkoutProduct"));
 
     if (checkoutProduct) {
-      setCartItems([checkoutProduct]); // Buy Now → Single product checkout
+      setCartItems([checkoutProduct]);
     } else {
-      setCartItems(getCart()); // Normal → All cart items
+      setCartItems(getCart());
     }
 
     setHydrated(true);
   }, []);
-  // ⬆⬆ Nothing else touched
 
   if (!hydrated) return null;
 
-  // ⬇ qty fallback added (ONLY change here)
   const grandTotal = cartItems.reduce((t, i) => t + i.price * (i.qty ?? 1), 0);
   const mrpTotal = cartItems.reduce((t, i) => t + i.mrp * (i.qty ?? 1), 0);
   const discount = mrpTotal - grandTotal;
+
+  const handlePayment = async () => {
+    const shippingAddress = JSON.parse(localStorage.getItem("shippingAddress"));
+
+    if (!shippingAddress) {
+      alert("Please add delivery address before proceeding");
+      return;
+    }
+
+    try {
+      // 1️⃣ Create pending order
+      const orderRes = await fetch(
+        "http://localhost:5000/api/orders/create-pending",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            products: cartItems.map((item) => ({
+              product: item.productId,
+              quantity: item.qty ?? item.quantity ?? 1,
+            })),
+            shippingAddress, // ✅ SEND AS-IS
+          }),
+        }
+      );
+
+      // ✅ HTTP-level check (CRITICAL)
+      if (!orderRes.ok) {
+        alert("Unable to create order");
+        return;
+      }
+
+      const orderData = await orderRes.json();
+
+      if (orderData.status !== "ok") {
+        alert(orderData.message || "Unable to create order");
+        return;
+      }
+
+      const { amount, merchantTransactionId } = orderData.data;
+
+      // 2️⃣ Initiate PhonePe payment
+      const paymentRes = await fetch(
+        "http://localhost:5000/api/payment/initiate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount,
+            merchantTransactionId,
+          }),
+        }
+      );
+
+      const paymentData = await paymentRes.json();
+
+      if (paymentData?.data?.data?.instrumentResponse?.redirectInfo?.url) {
+        window.location.href =
+          paymentData.data.data.instrumentResponse.redirectInfo.url;
+      } else {
+        alert("Payment not ready yet (KYC pending)");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
+  };
 
   return (
     <div className={`min-h-screen bg-white px-4 py-6 ${roboto.className}`}>
@@ -115,14 +184,12 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {/* Continue Button */}
+      {/* Pay Now */}
       <button
-        onClick={() => {
-          router.push("/order-confirm");
-        }}
+        onClick={handlePayment}
         className="fixed bottom-4 left-4 right-4 bg-[#6b3430] text-white py-3 rounded-md font-semibold active:scale-95"
       >
-        Continue
+        Pay Now
       </button>
     </div>
   );

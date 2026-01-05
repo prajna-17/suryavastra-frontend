@@ -45,6 +45,16 @@ export default function NewAddressPage() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) return;
+    const shippingAddress = {
+      fullName: form.name,
+      phone: form.phone,
+      addressLine: form.details,
+      landmark: form.locality,
+      city: form.city,
+      state: form.state,
+      postalCode: form.pincode,
+    };
+
     localStorage.setItem("userAddress", JSON.stringify(form));
 
     const fromCart = window.location.search.includes("from=cart");
