@@ -33,6 +33,59 @@ export default function CheckoutPage() {
   const mrpTotal = cartItems.reduce((t, i) => t + i.mrp * (i.qty ?? 1), 0);
   const discount = mrpTotal - grandTotal;
 
+  const handleCOD = async () => {
+    const rawAddress = JSON.parse(localStorage.getItem(getAddressKey()));
+
+    if (!rawAddress) {
+      alert("Please add delivery address before proceeding");
+      return;
+    }
+
+    const shippingAddress = {
+      fullName: rawAddress.name,
+      phone: rawAddress.phone,
+      addressLine: rawAddress.details,
+      locality: rawAddress.locality,
+      city: rawAddress.city,
+      state: rawAddress.state,
+      postalCode: rawAddress.pincode,
+    };
+
+    try {
+      const res = await fetch("http://localhost:5000/api/orders/create-cod", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          products: cartItems.map((item) => ({
+            product: item.productId,
+            quantity: item.qty ?? item.quantity ?? 1,
+          })),
+          shippingAddress,
+          paymentMethod: "COD",
+        }),
+      });
+
+      if (!res.ok) {
+        alert("Unable to place COD order");
+        return;
+      }
+
+      const data = await res.json();
+
+      if (data.status === "ok") {
+        router.push(`/order-confirm`);
+      } else {
+        alert(data.message || "COD failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
+  };
+
   const handlePayment = async () => {
     const rawAddress = JSON.parse(localStorage.getItem(getAddressKey()));
 
@@ -198,6 +251,12 @@ export default function CheckoutPage() {
             Other Banks
           </button>
         </div>
+        <button
+          onClick={handleCOD}
+          className="w-full border border-[#833630] rounded-lg p-3 mt-6 font-medium"
+        >
+          Cash on Delivery (COD)
+        </button>
       </div>
 
       {/* Pay Now */}
