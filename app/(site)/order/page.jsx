@@ -6,8 +6,12 @@ import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import { roboto } from "@/app/fonts";
 import { robotoSlab } from "@/app/fonts";
+import { toast } from "react-toastify";
+import { getAddressKey } from "@/utils/address";
 
 export default function OrderPage() {
+  const [topMessage, setTopMessage] = useState("");
+
   const [cartItems, setCartItems] = useState([]);
   const [address, setAddress] = useState(null);
   const [hydrated, setHydrated] = useState(false);
@@ -19,8 +23,21 @@ export default function OrderPage() {
     if (single) setCartItems([single]);
     else setCartItems(getCart());
 
-    const saved = localStorage.getItem("shippingAddress");
-    if (saved) setAddress(JSON.parse(saved));
+    const saved = localStorage.getItem(getAddressKey());
+
+    if (saved) {
+      const raw = JSON.parse(saved);
+
+      setAddress({
+        fullName: raw.name,
+        phone: raw.phone,
+        addressLine: raw.details,
+        locality: raw.locality,
+        city: raw.city,
+        state: raw.state,
+        postalCode: raw.pincode,
+      });
+    }
 
     setHydrated(true);
 
@@ -45,6 +62,12 @@ export default function OrderPage() {
 
   return (
     <div className={`min-h-screen bg-white pb-28 px-4 ${roboto.className}`}>
+      {topMessage && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[9999] bg-[#6b3430] text-white px-4 py-2 rounded-md text-sm font-medium shadow-lg">
+          {topMessage}
+        </div>
+      )}
+
       {/* Deliver To */}
       <div className={`mt-8 ${robotoSlab.className}`}>
         <div className="flex items-center gap-2">
@@ -139,10 +162,10 @@ export default function OrderPage() {
 
       {/* Cart Items */}
       <div className="mt-6 space-y-4">
-        {cartItems.map((item) => (
+        {cartItems.map((item, index) => (
           <div
-            key={item.id}
-            id={`order-${item.id}`}
+            key={item.variantId}
+            id={`order-${item.variantId}`}
             className="cart-item flex items-center gap-3 bg-white shadow-lg p-3 rounded-xl"
           >
             <Image
@@ -151,6 +174,7 @@ export default function OrderPage() {
               width={60}
               height={80}
               className="rounded-lg object-cover"
+              style={{ height: "auto" }}
             />
 
             <div className="flex-1 text-sm">
@@ -181,7 +205,9 @@ export default function OrderPage() {
                 document.body.appendChild(popup);
 
                 popup.querySelector(".confirm-yes").onclick = () => {
-                  removeFromCart(item.id);
+                  removeFromCart(item.variantId);
+                  setTopMessage("Item removed from cart");
+                  setTimeout(() => setTopMessage(""), 2000);
                   refreshCart();
                   window.dispatchEvent(new Event("cart-updated"));
                   popup.remove();
@@ -199,9 +225,11 @@ export default function OrderPage() {
       <button
         onClick={() => {
           if (!address) {
-            alert("Please add delivery address before proceeding");
+            setTopMessage("Please add a delivery address to continue");
+            setTimeout(() => setTopMessage(""), 4000); // stays longer
             return;
           }
+
           if (cartItems.length > 0) {
             window.location.href = "/payment";
           }

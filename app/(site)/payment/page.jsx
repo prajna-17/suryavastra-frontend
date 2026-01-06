@@ -7,6 +7,7 @@ import { roboto } from "@/app/fonts";
 import { getCart } from "@/utils/cart";
 import { useEffect, useState } from "react";
 import { robotoSlab } from "@/app/fonts";
+import { getAddressKey } from "@/utils/address";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -33,7 +34,22 @@ export default function CheckoutPage() {
   const discount = mrpTotal - grandTotal;
 
   const handlePayment = async () => {
-    const shippingAddress = JSON.parse(localStorage.getItem("shippingAddress"));
+    const rawAddress = JSON.parse(localStorage.getItem(getAddressKey()));
+
+    if (!rawAddress) {
+      alert("Please add delivery address before proceeding");
+      return;
+    }
+
+    const shippingAddress = {
+      fullName: rawAddress.name,
+      phone: rawAddress.phone,
+      addressLine: rawAddress.details,
+      locality: rawAddress.locality,
+      city: rawAddress.city,
+      state: rawAddress.state,
+      postalCode: rawAddress.pincode,
+    };
 
     if (!shippingAddress) {
       alert("Please add delivery address before proceeding");

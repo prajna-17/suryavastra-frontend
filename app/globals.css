@@ -211,9 +211,11 @@
   pointer-events: none;
   z-index: 2;
 
-  background: radial-gradient(ellipse at center,
+  background: radial-gradient(
+      ellipse at center,
       rgba(0, 0, 0, 0) 40%,
-      rgba(100, 53, 51, 0.65) 100%),
+      rgba(100, 53, 51, 0.65) 100%
+    ),
     linear-gradient(to top, rgba(100, 53, 51, 0.55), rgba(100, 53, 51, 0));
 }
 
@@ -334,9 +336,11 @@
   height: 100%;
   pointer-events: none;
 
-  background: linear-gradient(to top,
-      rgba(100, 53, 51, 0.7),
-      rgba(100, 53, 51, 0));
+  background: linear-gradient(
+    to top,
+    rgba(100, 53, 51, 0.7),
+    rgba(100, 53, 51, 0)
+  );
   z-index: 2;
 }
 
@@ -641,11 +645,13 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at center,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0) 45%,
-      rgba(60, 30, 30, 0.5) 70%,
-      rgba(0, 0, 0, 0.85) 100%);
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(60, 30, 30, 0.5) 70%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
   z-index: 7;
 }
 
@@ -859,10 +865,12 @@
   height: 230px;
   pointer-events: none;
 
-  background: radial-gradient(circle at center,
-      rgba(100, 53, 51, 0) 0%,
-      rgba(100, 53, 51, 0.35) 60%,
-      rgba(100, 53, 51, 0.65) 100%);
+  background: radial-gradient(
+    circle at center,
+    rgba(100, 53, 51, 0) 0%,
+    rgba(100, 53, 51, 0.35) 60%,
+    rgba(100, 53, 51, 0.65) 100%
+  );
 
   z-index: 2;
 }
@@ -1249,7 +1257,6 @@
 /* wishlist icon bounce in header */
 .wishlist-bounce {
   animation: bounceIcon 0.6s ease;
-
 }
 
 @keyframes bounceIcon {
@@ -2302,7 +2309,6 @@
    RESPONSIVE (MOBILE VIEW)
 --------------------------------*/
 @media (max-width: 768px) {
-
   /* Sidebar */
   .admin-sidebar {
     position: fixed;
@@ -2374,4 +2380,56 @@
   margin-bottom: 6px;
   font-size: 14px;
   font-weight: 500;
+}
+
+/* Splash Animation */
+.splash-container {
+  height: 100vh;
+  width: 100%;
+  background-color: #4b2e1f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-weight: 800;
+  color: white;
+  font-size: 3.2rem;
+  letter-spacing: 0px;
+}
+
+.logo span {
+  transition: all 0.9s ease;
+}
+
+/* Initial state */
+.urya,
+.astra {
+  opacity: 0;
+  font-size: 1.8rem;
+}
+
+.s {
+  transform: translateX(22px);
+}
+
+.v {
+  transform: translateX(-22px);
+}
+
+/* Animated state */
+.logo.animate .s {
+  transform: translateX(0);
+}
+
+.logo.animate .v {
+  transform: translateX(0);
+}
+
+.logo.animate .urya,
+.logo.animate .astra {
+  opacity: 1;
 }

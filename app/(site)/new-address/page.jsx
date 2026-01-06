@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getAddressKey } from "@/utils/address";
 
 import { ArrowLeft } from "lucide-react";
 import { roboto } from "@/app/fonts";
@@ -55,7 +56,7 @@ export default function NewAddressPage() {
       postalCode: form.pincode,
     };
 
-    localStorage.setItem("userAddress", JSON.stringify(form));
+    localStorage.setItem(getAddressKey(), JSON.stringify(form));
 
     const fromCart = window.location.search.includes("from=cart");
 

@@ -4,7 +4,7 @@ import { roboto } from "@/app/fonts";
 import { useRouter } from "next/navigation";
 
 export default function OtpPage() {
-  const [resendTimer, setResendTimer] = useState(30);
+  const [resendTimer, setResendTimer] = useState(300);
   const [canResend, setCanResend] = useState(false);
 
   const [verifying, setVerifying] = useState(false);
@@ -82,7 +82,7 @@ export default function OtpPage() {
   };
   const startResendTimer = () => {
     setCanResend(false);
-    setResendTimer(30);
+    setResendTimer(300);
 
     const interval = setInterval(() => {
       setResendTimer((prev) => {

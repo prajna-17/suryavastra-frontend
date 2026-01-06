@@ -8,6 +8,8 @@ import { getCart, clearCart } from "@/utils/cart";
 import { getWishlist, clearWishlist } from "@/utils/wishlist";
 import { getToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
+import { FiLogOut } from "react-icons/fi";
+
 import SideMenu from "./SideMenu";
 
 function Header() {
@@ -48,6 +50,7 @@ function Header() {
   const handleLogout = () => {
     clearCart();
     clearWishlist();
+    localStorage.removeItem("wishlist");
 
     localStorage.removeItem("token");
     localStorage.removeItem("phone"); // or email
@@ -81,9 +84,10 @@ function Header() {
             {isLoggedIn && (
               <button
                 onClick={handleLogout}
-                className="text-sm font-semibold text-[#6b3430]"
+                className="relative cursor-pointer text-[#6b3430] hover:opacity-80 transition"
+                aria-label="Logout"
               >
-                Logout
+                <FiLogOut size={22} />
               </button>
             )}
 
