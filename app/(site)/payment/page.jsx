@@ -52,21 +52,24 @@ export default function CheckoutPage() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/orders/create-cod", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          products: cartItems.map((item) => ({
-            product: item.productId,
-            quantity: item.qty ?? item.quantity ?? 1,
-          })),
-          shippingAddress,
-          paymentMethod: "COD",
-        }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders/create-cod`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            products: cartItems.map((item) => ({
+              product: item.productId,
+              quantity: item.qty ?? item.quantity ?? 1,
+            })),
+            shippingAddress,
+            paymentMethod: "COD",
+          }),
+        }
+      );
 
       if (!res.ok) {
         alert("Unable to place COD order");
@@ -112,7 +115,8 @@ export default function CheckoutPage() {
     try {
       // 1️⃣ Create pending order
       const orderRes = await fetch(
-        "http://localhost:5000/api/orders/create-pending",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders/create-pending`,
+
         {
           method: "POST",
           headers: {
@@ -146,7 +150,8 @@ export default function CheckoutPage() {
 
       // 2️⃣ Initiate PhonePe payment
       const paymentRes = await fetch(
-        "http://localhost:5000/api/payment/initiate",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/payment/initiate`,
+
         {
           method: "POST",
           headers: {

@@ -3,13 +3,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ProductPage from "@/components/components-jsx/product/ProductPage";
+import { API } from "@/utils/api";
 
 export default function DynamicProductPage() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const API = "http://localhost:5000/api";
 
   useEffect(() => {
     async function fetchProduct() {
