@@ -1,9 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { roboto } from "@/app/fonts";
 import { useRouter } from "next/navigation";
 
 export default function OtpPage() {
+  const timerRef = useRef(null);
+
   const [resendTimer, setResendTimer] = useState(300);
   const [canResend, setCanResend] = useState(false);
 
@@ -84,13 +86,19 @@ export default function OtpPage() {
     setVerifying(false);
   };
   const startResendTimer = () => {
+    // 🔥 CLEAR any existing interval first
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
     setCanResend(false);
     setResendTimer(300);
 
-    const interval = setInterval(() => {
+    timerRef.current = setInterval(() => {
       setResendTimer((prev) => {
         if (prev <= 1) {
-          clearInterval(interval);
+          clearInterval(timerRef.current);
+          timerRef.current = null;
           setCanResend(true);
           return 0;
         }
@@ -101,6 +109,12 @@ export default function OtpPage() {
 
   useEffect(() => {
     startResendTimer();
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, []);
 
   const handleResendOtp = async () => {
@@ -141,7 +155,7 @@ export default function OtpPage() {
           </p>
 
           <div className="bg-[#f6e6e4] text-[#070707] mt-6 w-[95%] px-3 py-2 rounded-md text-sm">
-            OTP sent to mobile number XXXXXXX1234
+            OTP sent to your Email!!
           </div>
 
           {/* OTP Boxes */}

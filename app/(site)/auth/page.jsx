@@ -15,13 +15,16 @@ export default function AuthPage() {
     if (sendingOtp) return; // 🔒 STOP DUPLICATE OTP
     setSendingOtp(true);
     try {
-      const res = await fetch("http://localhost:5000/api/auth/send-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/send-otp`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       const data = await res.json();
 
@@ -50,7 +53,7 @@ export default function AuthPage() {
 
       {/* Sub text */}
       <p className="text-sm text-[#6b3430] mt-7 self-start ml-6 font-medium">
-        Login/Sign Up Using Mobile Number
+        Login/Sign Up Using Email
       </p>
 
       {/* Input Box */}
