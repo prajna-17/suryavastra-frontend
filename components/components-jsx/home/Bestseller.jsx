@@ -6,7 +6,7 @@ import ProductCard from "../ui/ProductCard";
 import Link from "next/link";
 import { getDiscount } from "@/utils/getDiscount";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 export default function BestSeller() {
   const [products, setProducts] = useState([]);
