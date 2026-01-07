@@ -18,7 +18,7 @@ export default function AdminCategory() {
   useEffect(() => {
     fetch(`${API}/categories`)
       .then((r) => r.json())
-      .then((d) => setCategories(Array.isArray(d) ? d : []))
+      .then((d) => setCategories(Array.isArray(d.data) ? d.data : []))
       .catch(() => console.log("Fetch error ❌"));
   }, []);
 
