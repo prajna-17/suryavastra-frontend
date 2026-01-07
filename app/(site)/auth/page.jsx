@@ -16,7 +16,7 @@ export default function AuthPage() {
     setSendingOtp(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/send-otp`,
+`${process.env.NEXT_PUBLIC_API_URL}/api/auth/send-otp`
         {
           method: "POST",
           headers: {
