@@ -6,7 +6,6 @@ import "@/components/components-jsx/admin/modal.css";
 import "@/components/components-jsx/admin/confirmModal.css";
 import React, { useState, useEffect } from "react";
 import { useUploadThing } from "@/utils/upload";
-
 import { API } from "@/utils/api";
 
 export default function AdminCategory() {
@@ -16,13 +15,20 @@ export default function AdminCategory() {
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   useEffect(() => {
+    if (!API) {
+      console.error("API URL not configured");
+      return;
+    }
+
     fetch(`${API}/categories`)
       .then((r) => r.json())
       .then((d) => {
         console.log("CATEGORY RESPONSE:", d);
         setCategories(Array.isArray(d) ? d : d.data || []);
       })
-      .catch(() => console.log("Fetch error ❌"));
+      .catch((e) => {
+        console.error("Fetch error ❌", e);
+      });
   }, []);
 
   const [openModal, setOpenModal] = useState(false);
@@ -37,7 +43,7 @@ export default function AdminCategory() {
 
   const { startUpload, isUploading } = useUploadThing("imageUploader", {
     onClientUploadComplete: (res) => {
-      setImage(res[0].url);
+      setImage(res[0].ufsUrl); // ✅ correct
     },
     onUploadError: () => alert("Upload failed ❌"),
   });
@@ -157,46 +163,72 @@ export default function AdminCategory() {
           className="primary-btn create-btn"
           disabled={isUploading}
           onClick={async () => {
+            if (!API) {
+              alert("API URL not configured");
+              return;
+            }
+
+            if (!token) {
+              alert("Login expired. Please login again.");
+              return;
+            }
+
             if (!name || !image) {
-              return alert("Name required & image upload must finish");
+              alert("Name required & image upload must finish");
+              return;
             }
 
             const payload = { name, image };
 
-            if (!editMode) {
-              const r = await fetch(`${API}/categories`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(payload),
-              });
+            try {
+              if (!editMode) {
+                const r = await fetch(`${API}/categories`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify(payload),
+                });
 
-              if (r.ok) {
+                if (!r.ok) {
+                  const err = await r.text();
+                  console.error("CREATE CATEGORY ERROR:", err);
+                  alert("Create failed ❌");
+                  return;
+                }
+
                 const newCat = await r.json();
                 setCategories((p) => [...p, newCat]);
                 alert("Created ✔");
-              } else alert("Create failed ❌");
-            } else {
-              const r = await fetch(`${API}/categories/${currentId}`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(payload),
-              });
+              } else {
+                const r = await fetch(`${API}/categories/${currentId}`, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify(payload),
+                });
 
-              if (r.ok) {
+                if (!r.ok) {
+                  const err = await r.text();
+                  console.error("UPDATE CATEGORY ERROR:", err);
+                  alert("Update failed ❌");
+                  return;
+                }
+
                 setCategories((p) =>
                   p.map((c) => (c._id === currentId ? { ...c, ...payload } : c))
                 );
                 alert("Updated ✔");
-              } else alert("Update failed ❌");
-            }
+              }
 
-            setOpenModal(false);
+              setOpenModal(false);
+            } catch (e) {
+              console.error("REQUEST FAILED:", e);
+              alert("Network error ❌");
+            }
           }}
         >
           {editMode ? "Update" : "Create"}
@@ -208,19 +240,28 @@ export default function AdminCategory() {
         onClose={() => setConfirmOpen(false)}
         message="Category will be permanently deleted."
         onConfirm={async () => {
-          const r = await fetch(`${API}/categories/${deleteId}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          try {
+            const r = await fetch(`${API}/categories/${deleteId}`, {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
 
-          if (r.ok) {
+            if (!r.ok) {
+              const err = await r.text();
+              console.error("DELETE CATEGORY ERROR:", err);
+              alert("Delete failed ❌");
+              return;
+            }
+
             setCategories((p) => p.filter((c) => c._id !== deleteId));
             alert("Deleted ✔");
-          } else alert("Delete failed ❌");
-
-          setConfirmOpen(false);
+            setConfirmOpen(false);
+          } catch (e) {
+            console.error("DELETE REQUEST FAILED:", e);
+            alert("Network error ❌");
+          }
         }}
       />
     </div>
