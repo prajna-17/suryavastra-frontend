@@ -48,15 +48,26 @@ function Header() {
 
   // 🔹 Logout handler
   const handleLogout = () => {
-    clearCart();
-    clearWishlist();
-    localStorage.removeItem("wishlist");
+    const keys = Object.keys(localStorage);
+
+    keys.forEach((key) => {
+      if (
+        key.startsWith("cart_") ||
+        key.startsWith("wishlist_") ||
+        key.startsWith("userAddress")
+      ) {
+        localStorage.removeItem(key);
+      }
+    });
 
     localStorage.removeItem("token");
-    localStorage.removeItem("phone"); // or email
+    localStorage.removeItem("email");
     localStorage.removeItem("isProfileComplete");
 
-    window.dispatchEvent(new Event("storage")); // refresh header state
+    window.dispatchEvent(new Event("cart-updated"));
+    window.dispatchEvent(new Event("wishlist-updated"));
+    window.dispatchEvent(new Event("storage"));
+
     router.push("/");
   };
 
