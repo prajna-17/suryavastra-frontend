@@ -7,7 +7,7 @@ import "@/components/components-jsx/admin/confirmModal.css";
 import React, { useState, useEffect } from "react";
 import { useUploadThing } from "@/utils/upload";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+import { API } from "@/utils/api";
 
 export default function AdminCategory() {
   const [categories, setCategories] = useState([]);
@@ -18,7 +18,10 @@ export default function AdminCategory() {
   useEffect(() => {
     fetch(`${API}/categories`)
       .then((r) => r.json())
-      .then((d) => setCategories(Array.isArray(d.data) ? d.data : []))
+      .then((d) => {
+        console.log("CATEGORY RESPONSE:", d);
+        setCategories(Array.isArray(d) ? d : d.data || []);
+      })
       .catch(() => console.log("Fetch error ❌"));
   }, []);
 

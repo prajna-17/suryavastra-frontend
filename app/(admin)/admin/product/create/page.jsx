@@ -32,7 +32,11 @@ export default function AdminCreateProduct() {
   useEffect(() => {
     fetch(`${API}/categories`)
       .then((r) => r.json())
-      .then((d) => setCategories(d));
+      .then((d) => {
+        console.log("CATEGORY RESPONSE:", d);
+        setCategories(Array.isArray(d) ? d : d.data || []);
+      })
+      .catch(() => console.log("Category fetch failed ❌"));
   }, []);
 
   // 🔹 MAIN IMAGES UPLOAD

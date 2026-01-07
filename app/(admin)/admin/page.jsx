@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-// import { api } from "../../api/api";  // use later when backend is ready
+import { API } from "@/utils/api";
 
 export default function AdminHome() {
   const router = useRouter();
+  const [totalOrders, setTotalOrders] = useState(0);
 
   const [totalCategories, setTotalCategories] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
@@ -16,16 +17,25 @@ export default function AdminHome() {
 
   const fetchCounts = async () => {
     try {
-      // when backend ready, enable these:
-      // const catRes = await api.get("/category");
-      // const prodRes = await api.get("/product");
+      const token = localStorage.getItem("token");
 
-      // setTotalCategories(catRes.data.length);
-      // setTotalProducts(prodRes.data.length);
+      const [catRes, prodRes, orderRes] = await Promise.all([
+        fetch(`${API}/categories`).then((r) => r.json()),
+        fetch(`${API}/products`).then((r) => r.json()),
+        fetch(`${API}/orders`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }).then((r) => r.json()),
+      ]);
 
-      // For now static until backend is connected:
-      setTotalCategories(0);
-      setTotalProducts(0);
+      const categories = Array.isArray(catRes) ? catRes : catRes.data || [];
+      const products = Array.isArray(prodRes) ? prodRes : prodRes.data || [];
+      const orders = Array.isArray(orderRes) ? orderRes : orderRes.data || [];
+
+      setTotalCategories(categories.length);
+      setTotalProducts(products.length);
+      setTotalOrders(orders.length);
     } catch (err) {
       console.error("Error fetching dashboard data", err);
     }
@@ -68,7 +78,7 @@ export default function AdminHome() {
 
         <div className="dashboard-card">
           <div className="dashboard-card-title">Active Orders</div>
-          <div className="dashboard-card-value">—</div>
+          <div className="dashboard-card-value">{totalOrders}</div>
           <div className="dashboard-card-sub">Pending / Completed</div>
         </div>
       </div>
