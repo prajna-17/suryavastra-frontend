@@ -52,10 +52,6 @@ export default function OrderConfirmPage() {
       setCartItems(getCart());
     }
 
-    if (userId) {
-      localStorage.removeItem(`cart_${userId}`);
-    }
-
     window.dispatchEvent(new Event("cart-updated"));
 
     setOrderNumber(Math.floor(Math.random() * 9000000 + 1000000));
@@ -67,8 +63,6 @@ export default function OrderConfirmPage() {
         year: "numeric",
       })
     );
-
-    localStorage.removeItem("checkoutProduct");
 
     const storedAddress = localStorage.getItem(getAddressKey());
     if (storedAddress) {
@@ -82,6 +76,20 @@ export default function OrderConfirmPage() {
     const price = Number(i.price);
     return t + price * Number(i.qty);
   }, 0);
+
+  useEffect(() => {
+    if (!cartItems.length) return;
+
+    const timer = setTimeout(() => {
+      const userId = getUserIdFromToken();
+      if (userId) {
+        localStorage.removeItem(`cart_${userId}`);
+      }
+      localStorage.removeItem("checkoutProduct");
+    }, 1500); // wait for animation + render
+
+    return () => clearTimeout(timer);
+  }, [cartItems]);
 
   return (
     <div className={`min-h-screen bg-white ${roboto.className}`}>
