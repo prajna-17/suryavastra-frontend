@@ -1,16 +1,28 @@
+"use client";
+
 import { FaPhoneAlt, FaEnvelope } from "react-icons/fa";
-import { roboto } from "@/app/fonts";
-import { robotoSlab } from "@/app/fonts";
+// import { roboto, robotoSlab } from "@/app/fonts";
+import { useEffect, useState } from "react";
 
 export default function Footer() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
-    <footer className={`footer ${roboto.className}`}>
+    // <footer className={`footer ${roboto.className}`}>
+    <footer className="footer">
       {/* Newsletter Section */}
-      <div className="footer-newsletter ">
+      <div className="footer-newsletter">
         <h2>Join Our Newsletter Now!</h2>
         <p>Be the first to know about new designs, events and more</p>
 
-        <div className={`newsletter-input-wrap ${robotoSlab.className}`}>
+        {/* <div className={`newsletter-input-wrap ${robotoSlab.className}`}> */}
+        <div className="newsletter-input-wrap">
           <input
             type="email"
             placeholder="Your email"
@@ -27,8 +39,8 @@ export default function Footer() {
 
       {/* Links Section */}
       <div
-        className={`footer-links ${robotoSlab.className}`}
-        style={{ backgroundColor: "var(--color-primary" }}
+        className="footer-links"
+        style={{ backgroundColor: "var(--color-primary)" }}
       >
         <div className="links-col">
           <h3>Useful Links</h3>
@@ -41,11 +53,7 @@ export default function Footer() {
             <li>Find a Store</li>
           </ul>
         </div>
-
-        <div
-          className="links-col"
-          style={{ backgroundColor: "var(--color-primary" }}
-        >
+        <div className="links-col">
           <h3>Information</h3>
           <ul>
             <li>Blog</li>
@@ -62,40 +70,36 @@ export default function Footer() {
 
       {/* Help Desk */}
       <div
-        className={`footer-helpdesk ${robotoSlab.className}`}
-        style={{ backgroundColor: "var(--color-primary" }}
+        className="footer-helpdesk"
+        style={{ backgroundColor: "var(--color-primary)" }}
       >
         <h3>Help Desk</h3>
-
         <div className="helpdesk-grid">
-          <div className="help-box" style={{ color: "var(--color-dark-brown" }}>
+          <div
+            className="help-box"
+            style={{ color: "var(--color-dark-brown)" }}
+          >
             <FaPhoneAlt className="help-icon" />
             <span>+91 98765 432XX</span>
           </div>
 
-          <div className="help-box" style={{ color: "var(--color-dark-brown" }}>
+          <div
+            className="help-box"
+            style={{ color: "var(--color-dark-brown)" }}
+          >
             <FaEnvelope className="help-icon" />
             <span>support@suryavastra.com</span>
           </div>
         </div>
-
         <p className="timing">(Mon – Sat : 10:00 AM – 7:00 PM)</p>
       </div>
 
       {/* Social Icons */}
       <div className="footer-social">
-        <div className="social-icon">
-          <img src="/img/youtube.png" alt="YouTube" />
-        </div>
-        <div className="social-icon">
-          <img src="/img/facebook.png" alt="Facebook" />
-        </div>
-        <div className="social-icon">
-          <img src="/img/instagram.png" alt="Instagram" />
-        </div>
-        <div className="social-icon">
-          <img src="/img/pinterest.png" alt="Pinterest" />
-        </div>
+        <img src="/img/youtube.png" alt="YouTube" />
+        <img src="/img/facebook.png" alt="Facebook" />
+        <img src="/img/instagram.png" alt="Instagram" />
+        <img src="/img/pinterest.png" alt="Pinterest" />
       </div>
     </footer>
   );

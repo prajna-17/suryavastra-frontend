@@ -6,26 +6,59 @@ import { roboto } from "@/app/fonts";
 import { getCart } from "@/utils/cart";
 import { useEffect, useState } from "react";
 import { getUserIdFromToken } from "@/utils/auth";
+import { getAddressKey } from "@/utils/address";
+import { motion } from "framer-motion";
+import confetti from "canvas-confetti";
 
 export default function OrderConfirmPage() {
+  const router = useRouter();
+
   const [orderNumber, setOrderNumber] = useState(null);
   const [today, setToday] = useState("");
   const [mounted, setMounted] = useState(false);
-
-  const router = useRouter();
   const [cartItems, setCartItems] = useState([]);
+  const [address, setAddress] = useState(null);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    // 🔊 Success sound (runs once)
+    const audio = new Audio("/sounds/success.mp3");
+    audio.volume = 0.4;
+    audio.play().catch(() => {});
+
+    // ✨ Golden confetti burst
+    confetti({
+      particleCount: 90,
+      spread: 70,
+      startVelocity: 28,
+      gravity: 0.6,
+      scalar: 1.1,
+      origin: { y: 0.45 },
+      colors: ["#f5c77a", "#e6b65c", "#cfa94a"],
+    });
+
     const userId = getUserIdFromToken();
+
+    const checkoutProduct = localStorage.getItem("checkoutProduct");
+
+    if (checkoutProduct) {
+      setCartItems([JSON.parse(checkoutProduct)]);
+    } else {
+      setCartItems(getCart());
+    }
 
     if (userId) {
       localStorage.removeItem(`cart_${userId}`);
     }
 
-    localStorage.removeItem("checkoutProduct"); // safety
     window.dispatchEvent(new Event("cart-updated"));
 
     setOrderNumber(Math.floor(Math.random() * 9000000 + 1000000));
+
     setToday(
       new Date().toLocaleDateString("en-US", {
         month: "short",
@@ -33,11 +66,13 @@ export default function OrderConfirmPage() {
         year: "numeric",
       })
     );
-    setMounted(true);
-  }, []);
 
-  useEffect(() => {
-    if (mounted) setCartItems(getCart());
+    localStorage.removeItem("checkoutProduct");
+
+    const storedAddress = localStorage.getItem(getAddressKey());
+    if (storedAddress) {
+      setAddress(JSON.parse(storedAddress));
+    }
   }, [mounted]);
 
   if (!mounted) return null;
@@ -47,17 +82,39 @@ export default function OrderConfirmPage() {
     return t + price * Number(i.qty);
   }, 0);
 
-  const address =
-    typeof window !== "undefined" && localStorage.getItem("userAddress")
-      ? JSON.parse(localStorage.getItem("userAddress"))
-      : null;
-
   return (
     <div className={`min-h-screen bg-white ${roboto.className}`}>
+      <motion.div
+        initial={{ scaleY: 1 }}
+        animate={{ scaleY: 0 }}
+        transition={{
+          duration: 1.8,
+          ease: [0.77, 0, 0.175, 1],
+        }}
+        style={{
+          position: "fixed",
+          inset: 0,
+          transformOrigin: "top",
+          background:
+            "radial-gradient(circle at center, #f3d6c6 0%, #b85c5c 45%, #6b1f1f 100%)",
+          zIndex: 50,
+        }}
+      />
+
       <div className="bg-[#C98A8A] text-center pb-20 pt-12 relative">
-        <div className="w-14 h-14 mx-auto rounded-full bg-white flex items-center justify-center shadow-md">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 14,
+            delay: 0.2,
+          }}
+          className="w-14 h-14 mx-auto rounded-full bg-white flex items-center justify-center shadow-md"
+        >
           <span className="text-[#C98A8A] text-2xl font-bold">✔</span>
-        </div>
+        </motion.div>
 
         <p className="mt-3 text-xl font-semibold text-white">
           Order Confirmed !
@@ -66,7 +123,6 @@ export default function OrderConfirmPage() {
           Your beautiful saree is on its way !
         </p>
 
-        {/* Floating Card */}
         <div className="absolute left-1/2 bottom-[-38px] -translate-x-1/2 w-[85%] bg-white shadow-lg rounded-xl px-5 py-4 grid grid-cols-2 text-sm font-medium">
           <div className="flex flex-col items-start">
             <p className="text-gray-600 text-xs">Order Number</p>
@@ -85,12 +141,9 @@ export default function OrderConfirmPage() {
       </div>
 
       <div className="px-5 pt-16 space-y-6 mb-12 flex flex-col items-center">
-        {/* Expected Delivery Section */}
         <div className="w-[95%] bg-white mx-auto rounded-2xl p-6 shadow-[0_0_25px_rgba(201,138,138,0.30)]">
-          {/* Heading + Icon */}
           <div className="flex items-center gap-3 mb-1">
             <div className="w-9 h-9 rounded-md bg-[#f1d1d1] flex items-center justify-center">
-              {/* Truck Icon SVG */}
               <svg
                 width="22"
                 height="22"
@@ -117,105 +170,69 @@ export default function OrderConfirmPage() {
             </div>
           </div>
 
-          {/* Timeline */}
           <div className="relative pl-14 mt-6 -ml-6">
-            {/* Line: Confirmed → Processing (pink) */}
-            <div className="absolute left-[40px] top-[30px] h-[40px] w-[2px] bg-[#C98A8A] z-0 "></div>
-
-            {/* Line: Processing → Delivered (grey) */}
+            <div className="absolute left-[40px] top-[30px] h-[40px] w-[2px] bg-[#C98A8A] z-0"></div>
             <div className="absolute left-[40px] top-[95px] h-[40px] w-[2px] bg-gray-400 opacity-40 z-0"></div>
 
-            {/* ORDER CONFIRMED */}
             <div className="flex items-start gap-3 mb-10 relative z-10">
               <div className="-ml-[28px] w-7 h-7 rounded-full bg-[#C98A8A] flex items-center justify-center">
                 <span className="text-white text-[10px] font-semibold">✔</span>
               </div>
-
               <div>
-                <p className="text-[13px] font-semibold text-[#a0918f] leading-tight">
+                <p className="text-[13px] font-semibold text-[#a0918f]">
                   Order Confirmed
                 </p>
-                <p className="text-[10px] text-gray-900 leading-tight font-semibold mt-2">
+                <p className="text-[10px] text-gray-900 font-semibold mt-2">
                   Dec 18, 2025 02:45 PM
                 </p>
               </div>
             </div>
 
-            {/* PROCESSING */}
             <div className="flex items-start gap-3 mb-10 relative z-10">
-              <div className="-ml-[28px] w-6 h-6 rounded-full border-[1px] border-[#e0d3d3] bg-gray-300 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-white border-[1px] border-[#fcf9f9]"></div>
-              </div>
-
+              <div className="-ml-[28px] w-6 h-6 rounded-full bg-gray-300"></div>
               <div>
-                <p className="text-[13px] text-[#c5bab9] leading-tight">
-                  Processing
-                </p>
-                <p className="text-[10px] text-[#c5bab9] leading-tight">
-                  Within 24 Hrs
-                </p>
+                <p className="text-[13px] text-[#c5bab9]">Processing</p>
+                <p className="text-[10px] text-[#c5bab9]">Within 24 Hrs</p>
               </div>
             </div>
 
-            {/* DELIVERED */}
             <div className="flex items-start gap-3 opacity-40 relative z-10">
-              <div className="-ml-[28px] w-6 h-6 rounded-full border-[1px] border-[#e0d3d3] bg-gray-300 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-white border-[1px] border-[#fcf9f9]"></div>
-              </div>
-
+              <div className="-ml-[28px] w-6 h-6 rounded-full bg-gray-300"></div>
               <div>
-                <p className="text-[13px] text-gray-400 leading-tight">
-                  Delivered
-                </p>
-                <p className="text-[10px] text-gray-500 leading-tight">
-                  21 - 23 Dec
-                </p>
+                <p className="text-[13px] text-gray-400">Delivered</p>
+                <p className="text-[10px] text-gray-500">21 - 23 Dec</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Order Items */}
-        <div className="bg-white rounded-2xl shadow-[0_0_25px_rgba(201,138,138,0.25)] w-[95%] mx-auto mt-4 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow w-[95%] overflow-hidden">
           <div className="p-5">
-            <p className="font-semibold text-[16px] mb-4">Your Order</p>
+            <p className="font-semibold mb-4">Your Order</p>
 
-            {cartItems.length > 0 ? (
-              cartItems.map((item, index) => (
-                <div key={index} className="flex gap-4 items-center mb-4">
-                  <Image
-                    src={item.image}
-                    width={75}
-                    height={85}
-                    alt={item.name}
-                    className="rounded-xl object-cover"
-                  />
-
-                  <div className="text-[13px] leading-tight">
-                    <p>
-                      <span className="font-bold">
-                        {item.name.split(" ")[0]}
-                      </span>{" "}
-                      {item.name.split(" ").slice(1).join(" ")}
-                    </p>
-                    <p className="text-xs text-gray-900 font-semibold mt-1">
-                      Qty : {item.qty}
-                    </p>
-                  </div>
+            {cartItems.map((item, index) => (
+              <div key={index} className="flex gap-4 items-center mb-4">
+                <Image
+                  src={item.image}
+                  width={75}
+                  height={85}
+                  alt={item.name}
+                  className="rounded-xl"
+                />
+                <div>
+                  <p>{item.name}</p>
+                  <p className="text-sm">Qty : {item.qty}</p>
                 </div>
-              ))
-            ) : (
-              <p className="text-gray-500 text-sm">No items found</p>
-            )}
+              </div>
+            ))}
           </div>
 
-          <div className="bg-[#f6e4e4] px-5 py-3 flex  justify-between items-center text-[15px] font-semibold rounded-b-2xl">
+          <div className="bg-[#f6e4e4] px-5 py-3 flex justify-between font-semibold">
             <span>Total Amount</span>
             <span>₹ {grandTotal.toLocaleString("en-IN")}</span>
           </div>
         </div>
 
-        {/* Address */}
         <div className="bg-white shadow-md rounded-xl p-5 w-[95%] text-sm">
           <p className="font-medium mb-1">Delivery Details</p>
           <p className="font-semibold mt-4">{address?.name}</p>
@@ -227,12 +244,11 @@ export default function OrderConfirmPage() {
           </p>
         </div>
 
-        {/* Bottom Actions */}
         <div className="flex justify-between w-[85%] text-sm">
           {["Track", "Invoice", "Share", "Support"].map((l) => (
             <button
               key={l}
-              className="flex flex-col items-center shadow-md bg-white p-3 rounded-xl w-[22%]"
+              className="shadow-md bg-white p-3 rounded-xl w-[22%]"
             >
               ● <span className="mt-1">{l}</span>
             </button>
@@ -241,12 +257,12 @@ export default function OrderConfirmPage() {
 
         <button
           onClick={() => router.push("/")}
-          className="w-[85%] bg-[#6b3430] text-white py-3 rounded-md font-medium active:scale-95"
+          className="w-[85%] bg-[#6b3430] text-white py-3 rounded-md font-medium"
         >
           Continue Shopping →
         </button>
 
-        <p className="text-xs text-center mt-2 mb-5 opacity-70 font-semibold">
+        <p className="text-xs text-center mt-2 opacity-70 font-semibold">
           🙏 Thank you for choosing us !
         </p>
       </div>

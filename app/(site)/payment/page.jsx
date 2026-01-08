@@ -10,6 +10,12 @@ import { robotoSlab } from "@/app/fonts";
 import { getAddressKey } from "@/utils/address";
 
 export default function CheckoutPage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const router = useRouter();
 
   const [cartItems, setCartItems] = useState([]);
@@ -27,7 +33,7 @@ export default function CheckoutPage() {
     setHydrated(true);
   }, []);
 
-  if (!hydrated) return null;
+  if (!hydrated || !mounted) return null;
 
   const grandTotal = cartItems.reduce((t, i) => t + i.price * (i.qty ?? 1), 0);
   const mrpTotal = cartItems.reduce((t, i) => t + i.mrp * (i.qty ?? 1), 0);
@@ -79,7 +85,7 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (data.status === "ok") {
-        router.push(`/order-confirm`);
+        router.push(`/order-confirm/${data.data.orderId}`);
       } else {
         alert(data.message || "COD failed");
       }
