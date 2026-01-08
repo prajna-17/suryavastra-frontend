@@ -48,7 +48,7 @@ export default function AdminCreateProduct() {
     if (upload) {
       setImages((p) => [
         ...p.filter((i) => !i.startsWith("blob:")),
-        ...upload.map((u) => u.url),
+        ...upload.map((u) => u.ufsUrl),
       ]);
     }
   };
@@ -74,7 +74,7 @@ export default function AdminCreateProduct() {
     if (upload) {
       setColorImages((p) => [
         ...p,
-        { color: currentColor, images: upload.map((u) => u.url) },
+        { color: currentColor, images: upload.map((u) => u.ufsUrl) },
       ]);
       setCurrentColor("");
     }
