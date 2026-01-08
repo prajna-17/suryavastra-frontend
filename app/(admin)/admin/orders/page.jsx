@@ -6,6 +6,8 @@ import "@/components/components-jsx/admin/modal.css";
 import Link from "next/link";
 
 export default function AdminOrders() {
+  const [filter, setFilter] = useState("ALL");
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -97,12 +99,47 @@ export default function AdminOrders() {
     }
   };
 
+  const filteredOrders = orders.filter((order) => {
+    if (filter === "PENDING") return order.orderStatus !== "DELIVERED";
+    if (filter === "DELIVERED") return order.orderStatus === "DELIVERED";
+    if (filter === "COD") return order.paymentMethod === "COD";
+    if (filter === "ONLINE") return order.paymentMethod === "ONLINE";
+    return true; // ALL
+  });
+
   return (
     <div>
       <h1 className="page-title">Manage Orders</h1>
 
+      <div className="cat-top-row" style={{ gap: 10 }}>
+        <button className="primary-btn small" onClick={() => setFilter("ALL")}>
+          All
+        </button>
+        <button
+          className="primary-btn small"
+          onClick={() => setFilter("PENDING")}
+        >
+          Pending
+        </button>
+        <button
+          className="primary-btn small"
+          onClick={() => setFilter("DELIVERED")}
+        >
+          Delivered
+        </button>
+        <button className="primary-btn small" onClick={() => setFilter("COD")}>
+          COD
+        </button>
+        <button
+          className="primary-btn small"
+          onClick={() => setFilter("ONLINE")}
+        >
+          Online
+        </button>
+      </div>
+
       <div className="product-grid">
-        {orders.map((order) => (
+        {filteredOrders.map((order) => (
           <div key={order._id} className="product-card">
             <div className="product-body">
               <div className="product-title">Order #{order._id.slice(-6)}</div>
