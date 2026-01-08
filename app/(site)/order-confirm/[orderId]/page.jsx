@@ -8,8 +8,11 @@ import { useEffect, useState } from "react";
 import { getUserIdFromToken } from "@/utils/auth";
 import { getAddressKey } from "@/utils/address";
 import { motion } from "framer-motion";
+import { useParams } from "next/navigation";
 
 export default function OrderConfirmPage() {
+  const { orderId } = useParams();
+
   const router = useRouter();
 
   const [orderNumber, setOrderNumber] = useState(null);
@@ -23,56 +26,41 @@ export default function OrderConfirmPage() {
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!orderId) return;
 
-    const runEffects = async () => {
-      // 🔊 sound
-      const audio = new Audio("/sounds/success.mp3");
-      audio.volume = 0.4;
-      audio.play().catch(() => {});
+    const fetchOrder = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
-      // ✨ confetti (client-only)
-      const confetti = (await import("canvas-confetti")).default;
+        if (!res.ok) return;
 
-      confetti({
-        particleCount: 90,
-        spread: 70,
-        startVelocity: 28,
-        gravity: 0.6,
-        scalar: 1.1,
-        origin: { y: 0.45 },
-        colors: ["#f5c77a", "#e6b65c", "#cfa94a"],
-      });
+        const data = await res.json();
+
+        setCartItems(data.products);
+        setAddress(data.shippingAddress);
+        setOrderNumber(data.orderNumber);
+
+        setToday(
+          new Date(data.createdAt).toLocaleDateString("en-US", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+          })
+        );
+      } catch (err) {
+        console.error(err);
+      }
     };
-    runEffects();
 
-    const userId = getUserIdFromToken();
-
-    const checkoutProduct = localStorage.getItem("checkoutProduct");
-
-    if (checkoutProduct) {
-      setCartItems([JSON.parse(checkoutProduct)]);
-    } else {
-      setCartItems(getCart());
-    }
-
-    window.dispatchEvent(new Event("cart-updated"));
-
-    setOrderNumber(Math.floor(Math.random() * 9000000 + 1000000));
-
-    setToday(
-      new Date().toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric",
-      })
-    );
-
-    const storedAddress = localStorage.getItem(getAddressKey());
-    if (storedAddress) {
-      setAddress(JSON.parse(storedAddress));
-    }
-  }, [mounted]);
+    fetchOrder();
+  }, [orderId]);
 
   if (!mounted) return null;
 
@@ -84,15 +72,10 @@ export default function OrderConfirmPage() {
   useEffect(() => {
     if (!cartItems.length) return;
 
-    const timer = setTimeout(() => {
-      const userId = getUserIdFromToken();
-      if (userId) {
-        localStorage.removeItem(`cart_${userId}`);
-      }
-      localStorage.removeItem("checkoutProduct");
-    }, 1500); // wait for animation + render
-
-    return () => clearTimeout(timer);
+    const userId = getUserIdFromToken();
+    if (userId) {
+      localStorage.removeItem(`cart_${userId}`);
+    }
   }, [cartItems]);
 
   return (
