@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { API } from "@/utils/api";
 import "@/components/components-jsx/admin/modal.css";
-import Link from "next/link";
 
 export default function AdminOrders() {
   const [filter, setFilter] = useState("ALL");
-
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,71 +31,29 @@ export default function AdminOrders() {
     }
   };
 
-  if (loading) {
-    return <div style={{ padding: 30 }}>Loading orders...</div>;
-  }
+  // ✅ STATUS BADGE HELPER (ONLY ADDITION)
+  const getStatusBadge = (status) => {
+    const styles = {
+      PLACED: { bg: "#fff3cd", color: "#856404" },
+      SHIPPED: { bg: "#e3f2fd", color: "#1565c0" },
+      DELIVERED: { bg: "#e8f5e9", color: "#2e7d32" },
+      CANCELLED: { bg: "#fdecea", color: "#c62828" },
+    };
 
-  const markAsDelivered = async (orderId) => {
-    try {
-      const res = await fetch(`${API}/orders/${orderId}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!res.ok) {
-        alert("Failed to update order ❌");
-        return;
-      }
-
-      // update UI locally
-      setOrders((prev) =>
-        prev.map((o) =>
-          o._id === orderId
-            ? { ...o, isCompleted: true, orderStatus: "DELIVERED" }
-            : o
-        )
-      );
-
-      alert("Order marked as Delivered ✔");
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong ❌");
-    }
-  };
-
-  const updateOrderStatus = async (orderId, status) => {
-    try {
-      const res = await fetch(`${API}/orders/${orderId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ orderStatus: status }),
-      });
-
-      if (!res.ok) {
-        alert("Failed to update status ❌");
-        return;
-      }
-
-      setOrders((prev) =>
-        prev.map((o) =>
-          o._id === orderId
-            ? {
-                ...o,
-                orderStatus: status,
-                isCompleted: status === "DELIVERED",
-              }
-            : o
-        )
-      );
-    } catch (err) {
-      console.error(err);
-      alert("Error updating status ❌");
-    }
+    return (
+      <span
+        style={{
+          background: styles[status]?.bg,
+          color: styles[status]?.color,
+          padding: "3px 8px",
+          borderRadius: 12,
+          fontSize: 12,
+          fontWeight: 600,
+        }}
+      >
+        {status}
+      </span>
+    );
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -107,11 +64,19 @@ export default function AdminOrders() {
     return true; // ALL
   });
 
+  if (loading) {
+    return <div style={{ padding: 30 }}>Loading orders...</div>;
+  }
+
   return (
     <div>
       <h1 className="page-title">Manage Orders</h1>
 
-      <div className="cat-top-row" style={{ gap: 10 }}>
+      {/* FILTER BUTTONS */}
+      <div
+        className="cat-top-row"
+        style={{ gap: 6, justifyContent: "flex-start" }}
+      >
         <button className="primary-btn small" onClick={() => setFilter("ALL")}>
           All
         </button>
@@ -138,6 +103,7 @@ export default function AdminOrders() {
         </button>
       </div>
 
+      {/* ORDERS LIST */}
       <div className="product-grid">
         {filteredOrders.map((order) => (
           <div key={order._id} className="product-card">
@@ -150,7 +116,7 @@ export default function AdminOrders() {
               </div>
 
               <div className="product-sub">
-                <span>Status: {order.orderStatus}</span>
+                <span>Status: {getStatusBadge(order.orderStatus)}</span>
                 <span>Payment: {order.paymentStatus}</span>
               </div>
 
@@ -186,17 +152,6 @@ export default function AdminOrders() {
               </div>
 
               <div style={{ marginTop: 10 }}>
-                <select
-                  className="search-input"
-                  value={order.orderStatus}
-                  onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                >
-                  <option value="PLACED">PLACED</option>
-                  <option value="SHIPPED">SHIPPED</option>
-                  <option value="DELIVERED">DELIVERED</option>
-                </select>
-              </div>
-              <div className="mt-6">
                 <Link href={`/admin/orders/${order._id}`}>
                   <button className="primary-btn small">View Details</button>
                 </Link>

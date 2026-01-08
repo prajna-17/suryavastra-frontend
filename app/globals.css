@@ -2433,3 +2433,8 @@
 .logo.animate .astra {
   opacity: 1;
 }
+
+.order-top-row {
+  gap: 5px;
+  justify-content: space-between;
+}
