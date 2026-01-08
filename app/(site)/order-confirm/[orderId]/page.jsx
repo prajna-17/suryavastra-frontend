@@ -1,5 +1,4 @@
 "use client";
-export const dynamic = "force-dynamic";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -9,7 +8,6 @@ import { useEffect, useState } from "react";
 import { getUserIdFromToken } from "@/utils/auth";
 import { getAddressKey } from "@/utils/address";
 import { motion } from "framer-motion";
-import confetti from "canvas-confetti";
 
 export default function OrderConfirmPage() {
   const router = useRouter();
@@ -26,21 +24,27 @@ export default function OrderConfirmPage() {
 
   useEffect(() => {
     if (!mounted) return;
-    // 🔊 Success sound (runs once)
-    const audio = new Audio("/sounds/success.mp3");
-    audio.volume = 0.4;
-    audio.play().catch(() => {});
 
-    // ✨ Golden confetti burst
-    confetti({
-      particleCount: 90,
-      spread: 70,
-      startVelocity: 28,
-      gravity: 0.6,
-      scalar: 1.1,
-      origin: { y: 0.45 },
-      colors: ["#f5c77a", "#e6b65c", "#cfa94a"],
-    });
+    const runEffects = async () => {
+      // 🔊 sound
+      const audio = new Audio("/sounds/success.mp3");
+      audio.volume = 0.4;
+      audio.play().catch(() => {});
+
+      // ✨ confetti (client-only)
+      const confetti = (await import("canvas-confetti")).default;
+
+      confetti({
+        particleCount: 90,
+        spread: 70,
+        startVelocity: 28,
+        gravity: 0.6,
+        scalar: 1.1,
+        origin: { y: 0.45 },
+        colors: ["#f5c77a", "#e6b65c", "#cfa94a"],
+      });
+    };
+    runEffects();
 
     const userId = getUserIdFromToken();
 
