@@ -21,6 +21,7 @@ import {
 } from "@/utils/wishlist";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import ShareModal from "@/components/components-jsx/product/ShareModal";
+import { requiredLogin } from "@/utils/requiredLogin";
 
 // SMALL FIX FOR HEADER CART POP
 function bounceCartIcon(attempt = 0) {
@@ -187,15 +188,19 @@ export default function ProductPage({ product }) {
               className="border rounded-md p-2 text-gray-600 relative"
               onClick={(e) => {
                 e.stopPropagation();
+
+                if (!requiredLogin("Login to use wishlist")) {
+                  showToast("Please login to use wishlist");
+                  return;
+                }
+
                 const variantId = `${product._id}-${selectedColor}`;
 
                 if (liked) {
-                  // 1. IF ALREADY LIKED -> REMOVE
                   removeFromWishlist(variantId);
                   setLiked(false);
                   showToast("Removed from Wishlist");
                 } else {
-                  // 2. IF NOT LIKED -> ADD
                   addToWishlistIfNotExists({
                     variantId,
                     productId: product._id,
@@ -210,12 +215,13 @@ export default function ProductPage({ product }) {
                   setLiked(true);
                   showToast("Added to Wishlist");
 
-                  // Visual effects only on Add
                   popHeart(e);
                   const audio = new Audio("/sounds/pop.mp3");
                   audio.volume = 0.6;
                   audio.play();
                 }
+
+                window.dispatchEvent(new Event("wishlist-updated"));
               }}
             >
               {liked ? (
@@ -285,6 +291,12 @@ export default function ProductPage({ product }) {
         <button
           className="flex-1 border text-[#8b5e55] py-3 rounded flex items-center justify-center gap-2"
           onClick={() => {
+            const token = localStorage.getItem("token");
+            if (!requiredLogin("Login to continue")) {
+              showToast("Please login to continue");
+              return;
+            }
+
             const data = {
               id: product._id,
               name: product.title,
@@ -294,6 +306,7 @@ export default function ProductPage({ product }) {
               discount: off,
               qty: 1,
             };
+
             localStorage.setItem("checkoutProduct", JSON.stringify(data));
             window.location.href = "/order";
           }}
@@ -303,6 +316,12 @@ export default function ProductPage({ product }) {
         <div className="flex-1 relative">
           <button
             onClick={(e) => {
+              const token = localStorage.getItem("token");
+              if (!requiredLogin("Login to add items to cart")) {
+                showToast("Please login to add items to cart");
+                return;
+              }
+
               const wrapper = e.currentTarget.parentElement;
 
               // 1. Create the unique variant ID

@@ -15,21 +15,20 @@ import { toggleWishlist, addToWishlistIfNotExists } from "@/utils/wishlist";
 import { getCart, updateQty, removeFromCart } from "@/utils/cart"; // adjust path if needed
 
 export default function CartPage() {
+  const [hydrated, setHydrated] = useState(false);
+
   const [cartItems, setCartItems] = useState([]);
 
-  // load cart on page load
   useEffect(() => {
     setCartItems(getCart());
+    setHydrated(true);
   }, []);
 
   const refreshCart = () => {
     setCartItems(getCart());
   };
 
-  useEffect(() => {
-    console.log("Cart:", getCart());
-    setCartItems(getCart());
-  }, []);
+  if (!hydrated) return null;
 
   return (
     <div className="min-h-screen bg-[#faf7f6] pb-28">

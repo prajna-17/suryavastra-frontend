@@ -162,63 +162,71 @@ export default function OrderPage() {
 
       {/* Cart Items */}
       <div className="mt-6 space-y-4">
-        {cartItems.map((item, index) => (
-          <div
-            key={item.variantId}
-            id={`order-${item.variantId}`}
-            className="cart-item flex items-center gap-3 bg-white shadow-lg p-3 rounded-xl"
-          >
-            <Image
-              src={item.image}
-              alt={item.name}
-              width={60}
-              height={80}
-              className="rounded-lg object-cover"
-              style={{ height: "auto" }}
-            />
+        {cartItems.map((item, index) => {
+          const uniqueKey = item.variantId || `${item.id}-${index}`;
 
-            <div className="flex-1 text-sm">
-              <p className="leading-tight text-sm">
-                <span className="font-semibold">{item.name.split(" ")[0]}</span>{" "}
-                {item.name.split(" ").slice(1).join(" ")}
-              </p>
-              <p className="text-gray-900 text-xs mt-1 font-medium">
-                Qty: {item.qty ?? 1}
-              </p>
-              <p className="font-semibold mt-1">
-                ₹ {item.price.toLocaleString("en-IN")}
-              </p>
+          return (
+            <div
+              key={uniqueKey}
+              id={`order-${uniqueKey}`}
+              className="cart-item flex items-center gap-3 bg-white shadow-lg p-3 rounded-xl"
+            >
+              <Image
+                src={item.image}
+                alt={item.name}
+                width={60}
+                height={80}
+                className="rounded-lg object-cover"
+                style={{ height: "auto" }}
+              />
+
+              <div className="flex-1 text-sm">
+                <p className="leading-tight text-sm">
+                  <span className="font-semibold">
+                    {item.name.split(" ")[0]}
+                  </span>{" "}
+                  {item.name.split(" ").slice(1).join(" ")}
+                </p>
+
+                <p className="text-gray-900 text-xs mt-1 font-medium">
+                  Qty: {item.qty ?? 1}
+                </p>
+
+                <p className="font-semibold mt-1">
+                  ₹ {item.price.toLocaleString("en-IN")}
+                </p>
+              </div>
+
+              <Trash2
+                size={18}
+                className="text-[#534b4a] cursor-pointer"
+                onClick={() => {
+                  const popup = document.createElement("div");
+                  popup.className = "confirm-remove-box";
+                  popup.innerHTML = `
+              <div class="confirm-text">Remove item from cart?</div>
+              <div class="confirm-actions">
+                <button class="confirm-yes">Yes</button>
+                <button class="confirm-no">No</button>
+              </div>`;
+                  document.body.appendChild(popup);
+
+                  popup.querySelector(".confirm-yes").onclick = () => {
+                    removeFromCart(item.variantId);
+                    setTopMessage("Item removed from cart");
+                    setTimeout(() => setTopMessage(""), 2000);
+                    refreshCart();
+                    window.dispatchEvent(new Event("cart-updated"));
+                    popup.remove();
+                  };
+
+                  popup.querySelector(".confirm-no").onclick = () =>
+                    popup.remove();
+                }}
+              />
             </div>
-
-            <Trash2
-              size={18}
-              className="text-[#534b4a] cursor-pointer"
-              onClick={() => {
-                const popup = document.createElement("div");
-                popup.className = "confirm-remove-box";
-                popup.innerHTML = `
-                  <div class="confirm-text">Remove item from cart?</div>
-                  <div class="confirm-actions">
-                    <button class="confirm-yes">Yes</button>
-                    <button class="confirm-no">No</button>
-                  </div>`;
-                document.body.appendChild(popup);
-
-                popup.querySelector(".confirm-yes").onclick = () => {
-                  removeFromCart(item.variantId);
-                  setTopMessage("Item removed from cart");
-                  setTimeout(() => setTopMessage(""), 2000);
-                  refreshCart();
-                  window.dispatchEvent(new Event("cart-updated"));
-                  popup.remove();
-                };
-
-                popup.querySelector(".confirm-no").onclick = () =>
-                  popup.remove();
-              }}
-            />
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Bottom Button */}

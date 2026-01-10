@@ -5,6 +5,7 @@ import { FiHeart } from "react-icons/fi";
 import Link from "next/link";
 import { toggleWishlist, isInWishlist } from "@/utils/wishlist";
 import { useState, useEffect } from "react";
+import { requiredLogin } from "@/utils/requiredLogin";
 
 export default function YouMayAlsoLike() {
   const [wish, setWish] = useState({});
@@ -39,10 +40,17 @@ export default function YouMayAlsoLike() {
   }
 
   const toggle = (p, e) => {
+    if (!requiredLogin("Login to use wishlist")) {
+      showToast("Please login to use wishlist");
+      return;
+    }
+
     toggleWishlist({
-      id: p.id,
+      variantId: `${p.id}-Default`,
+      productId: p.id,
+      color: "Default",
       image: p.image,
-      name: p.name || "", // prevents undefined
+      name: p.name || "",
       price: p.price,
       mrp: p.oldPrice,
       discount: p.discount,
@@ -51,9 +59,8 @@ export default function YouMayAlsoLike() {
     setWish((prev) => ({ ...prev, [p.id]: !prev[p.id] }));
 
     popHeart(e, !wish[p.id]);
-    showToast(!wish[p.id] ? "Added to wishlist" : "Removed from wishlist");
+    showToast(!wish[p.id] ? "Added to Wishlist" : "Removed from Wishlist");
 
-    // SOUND
     const audio = new Audio("/sounds/pop.mp3");
     audio.volume = 0.6;
     audio.play();

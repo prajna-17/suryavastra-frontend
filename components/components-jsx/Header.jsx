@@ -8,7 +8,6 @@ import { getCart, clearCart } from "@/utils/cart";
 import { getWishlist, clearWishlist } from "@/utils/wishlist";
 import { getToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
-import { FiLogOut } from "react-icons/fi";
 
 import SideMenu from "./SideMenu";
 
@@ -19,6 +18,15 @@ function Header() {
   const [wishlistCount, setWishlistCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    window.openLoginSidebar = () => {
+      setMenuOpen(true);
+    };
+
+    return () => {
+      delete window.openLoginSidebar;
+    };
+  }, []);
 
   // 🔹 Check login status
   useEffect(() => {
@@ -87,20 +95,13 @@ function Header() {
           />
 
           {/* Logo */}
-          <img src="/img/logo.png" alt="Logo" className="h-8 w-auto" />
+          <Link href="/">
+            <img src="/img/logo.png" alt="Logo" className="h-8 w-[80px]" />
+          </Link>
 
           {/* Right Icons */}
           <div className="flex gap-5 items-center">
             {/* Logout */}
-            {isLoggedIn && (
-              <button
-                onClick={handleLogout}
-                className="relative cursor-pointer text-[#6b3430] hover:opacity-80 transition"
-                aria-label="Logout"
-              >
-                <FiLogOut size={22} />
-              </button>
-            )}
 
             {/* Wishlist */}
             <div className="relative cursor-pointer">

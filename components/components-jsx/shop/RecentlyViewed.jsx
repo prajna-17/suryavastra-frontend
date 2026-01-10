@@ -5,6 +5,7 @@ import { FiHeart } from "react-icons/fi";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { toggleWishlist, isInWishlist } from "@/utils/wishlist";
+import { requiredLogin } from "@/utils/requiredLogin";
 
 export default function RecentlyViewed() {
   const [wish, setWish] = useState({});
@@ -39,11 +40,15 @@ export default function RecentlyViewed() {
   }
 
   const toggle = (p, e) => {
+    if (!requiredLogin("Login to use wishlist")) {
+      showToast("Please login to use wishlist");
+      return;
+    }
+
     toggleWishlist({
       variantId: `${p.id}-Default`,
       productId: p.id,
       color: "Default",
-
       name: p.name,
       image: p.image || "/img/placeholder.png",
       price: p.price,
@@ -54,7 +59,7 @@ export default function RecentlyViewed() {
     setWish((prev) => ({ ...prev, [p.id]: !prev[p.id] }));
 
     popHeart(e, !wish[p.id]);
-    showToast(!wish[p.id] ? "Added to Wishlist " : "Removed from Wishlist");
+    showToast(!wish[p.id] ? "Added to Wishlist" : "Removed from Wishlist");
 
     const audio = new Audio("/sounds/pop.mp3");
     audio.volume = 0.6;

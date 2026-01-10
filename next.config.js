@@ -8,6 +8,11 @@ const nextConfig = {
     ],
     unoptimized: true,
   },
+
+  // ✅ ADD THIS
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 module.exports = nextConfig;

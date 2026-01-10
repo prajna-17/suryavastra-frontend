@@ -10,6 +10,7 @@ import {
   removeFromWishlist,
 } from "@/utils/wishlist";
 import Link from "next/link";
+import { requiredLogin } from "@/utils/requiredLogin";
 
 export default function ProductCard({
   id,
@@ -65,6 +66,11 @@ export default function ProductCard({
             e.preventDefault();
             e.stopPropagation();
 
+            if (!requiredLogin("Login to use wishlist")) {
+              showToast("Please login to use wishlist");
+              return;
+            }
+
             if (liked) {
               removeFromWishlist(variantId);
               setLiked(false);
@@ -80,6 +86,7 @@ export default function ProductCard({
                 mrp: origPrice,
                 discount,
               });
+
               setLiked(true);
               showToast("Added to Wishlist");
 
@@ -88,7 +95,7 @@ export default function ProductCard({
               audio.play();
             }
 
-            // Animation
+            // Heart animation
             const heart = document.createElement("div");
             heart.innerHTML = "🤎";
             heart.className = "pop-heart";
@@ -126,6 +133,11 @@ export default function ProductCard({
         <button
           onClick={(e) => {
             e.stopPropagation();
+            const token = localStorage.getItem("token");
+            if (!requiredLogin("Login to add items to cart")) {
+              showToast("Please login to add items to cart");
+              return;
+            }
 
             // 3. FIX: Send the dynamic variantId and color
             addToCart({

@@ -1,6 +1,9 @@
 "use client";
+
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+
 import ProductCard from "./ProductCard";
 import FilterSheet from "./FilterSheet";
 import SortSheet from "./SortSheet";
@@ -10,7 +13,10 @@ import { roboto, rougeScript } from "@/app/fonts";
 import { API } from "@/utils/api";
 import getDiscount from "@/utils/getDiscount";
 
-export default function ShopPage() {
+function ShopContent() {
+  const searchParams = useSearchParams();
+  const category = searchParams.get("category");
+
   const [allProducts, setAllProducts] = useState([]);
   const [visibleProducts, setVisibleProducts] = useState([]);
   const [page, setPage] = useState(1);
@@ -22,26 +28,27 @@ export default function ShopPage() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [category]);
 
   async function fetchProducts() {
-    const res = await fetch(`${API}/products`);
+    const url = category
+      ? `${API}/products?category=${category}`
+      : `${API}/products`;
+
+    const res = await fetch(url);
     const data = await res.json();
     setAllProducts(data);
     setVisibleProducts(data.slice(0, ITEMS_PER_LOAD));
+    setPage(1);
   }
 
-  // ⬇ infinite load
   function loadMore() {
     const next = page + 1;
     const end = next * ITEMS_PER_LOAD;
-
-    const more = allProducts.slice(0, end);
-    setVisibleProducts(more);
+    setVisibleProducts(allProducts.slice(0, end));
     setPage(next);
   }
 
-  // detect scroll bottom
   useEffect(() => {
     function handleScroll() {
       if (
@@ -55,6 +62,11 @@ export default function ShopPage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   });
+
+  const breadcrumbLabel =
+    category && allProducts.length > 0
+      ? allProducts[0]?.category?.name || "Products"
+      : "All Products";
 
   return (
     <div className="bg-[#f6efec] min-h-screen">
@@ -70,11 +82,8 @@ export default function ShopPage() {
       </div>
 
       {/* Breadcrumb */}
-      <div
-        className={`px-3 py-3 text-sm mt-3 ${roboto.className}`}
-        style={{ color: "var(--color-brown)" }}
-      >
-        Home &gt; <span className="font-medium">Banarasi Saree</span>
+      <div className={`px-3 py-3 text-sm mt-3 ${roboto.className}`}>
+        Home &gt; <span className="font-medium">{breadcrumbLabel}</span>
       </div>
 
       {/* Filter + Sort */}
@@ -86,24 +95,21 @@ export default function ShopPage() {
         <div className="flex gap-2">
           <button
             onClick={() => setShowFilter(true)}
-            className="flex items-center gap-1 border border-yellow-900 px-3 py-[6px] rounded-md text-sm"
+            className="flex items-center gap-1 border px-3 py-[6px] rounded-md text-sm"
           >
-            <FiFilter size={14} />{" "}
-            <span style={{ color: "var(--color-brown)" }}>Filter</span>
+            <FiFilter size={14} /> Filter
           </button>
 
           <button
             onClick={() => setShowSort(true)}
-            className="flex items-center gap-1 border border-yellow-900 px-3 py-[6px] rounded-md text-sm"
+            className="flex items-center gap-1 border px-3 py-[6px] rounded-md text-sm"
           >
-            <FiSliders size={14} />{" "}
-            <span style={{ color: "var(--color-brown)" }}>Sort</span>
+            <FiSliders size={14} /> Sort
           </button>
         </div>
       </div>
 
-      {/* PRODUCTS GRID */}
-      {/* PRODUCTS GRID */}
+      {/* Products */}
       <div className="grid grid-cols-2 gap-3 px-3">
         {visibleProducts.map((item) => (
           <ProductCard
@@ -113,74 +119,35 @@ export default function ShopPage() {
             name={item.title}
             price={item.price}
             origPrice={item.oldPrice}
-            // ADD THIS LINE: Pass the dynamic color
             color={item.colors?.[0] || "Default"}
             discount={getDiscount(item.price, item.oldPrice)}
           />
         ))}
       </div>
 
-      {/* LOADING TEXT */}
       {visibleProducts.length < allProducts.length && (
         <p className="text-center py-4 text-sm text-gray-500">
           Loading more...
         </p>
       )}
 
-      {/* Bottom Banners untouched */}
-      {/* Sale Banner */}
-      {/* Sale Banner */}
-      {/* Sale Banner */}
-      <div className="mb-8 mt-20">
-        <div className="relative w-full h-[150px] overflow-hidden ">
-          {/* Background Saree – full width */}
-          <Image
-            src="/img/saree9.jpeg"
-            alt="End of Season Sale"
-            fill
-            className="object-cover"
-            priority
-          />
-
-          {/* Left content stack */}
-          <div
-            className={
-              "absolute left-3 top-1/2 -translate-y-1/2 flex flex-col items-start "
-            }
-          >
-            {/* End of Season text */}
-            <p
-              className={`text-[30px] font-medium text-[#080808] mb-1 absolute bottom-19 left-2 whitespace-nowrap underline ${rougeScript.className}`}
-            >
-              End of Season
-            </p>
-
-            {/* SALE tags image (no box feeling) */}
-            <div className="mb-1 bg-[#fdcc44] left-1">
-              <Image
-                src="/img/saree16.jpeg"
-                alt="Sale"
-                width={70}
-                height={70}
-                className="mix-blend-multiply"
-              />
-            </div>
-
-            {/* Shop Now button */}
-            <button className="bg-white text-[#7a463c] text-[11px] px-4 py-1 rounded shadow">
-              Shop Now
-            </button>
-          </div>
-        </div>
-      </div>
       <RecentlyViewed />
 
       <FilterSheet open={showFilter} onClose={() => setShowFilter(false)} />
       <SortSheet
         open={showSort}
         onClose={() => setShowSort(false)}
-        setProducts={setAllProducts}
+        products={visibleProducts}
+        setProducts={setVisibleProducts}
       />
     </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<div className="p-4">Loading products…</div>}>
+      <ShopContent />
+    </Suspense>
   );
 }

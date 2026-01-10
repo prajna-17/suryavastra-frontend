@@ -2,8 +2,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { roboto } from "@/app/fonts";
-
 export default function AuthPage() {
   const [sendingOtp, setSendingOtp] = useState(false);
 
@@ -41,9 +39,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div
-      className={`min-h-screen flex flex-col items-center bg-white ${roboto.className}`}
-    >
+    <div className="min-h-screen flex flex-col items-center bg-white">
       {/* Top Logo */}
       <div className="w-full flex items-center justify-center py-6 border-b mt-7">
         <h1 className="text-[#6b3430] font-bold text-xl tracking-wide">

@@ -1,21 +1,39 @@
 "use client";
 
 import { roboto } from "@/app/fonts";
-import { useEffect, useRef } from "react";
-import { homeStories } from "@/data/data";
+import { useEffect, useRef, useState } from "react";
+import { API } from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 const TopSlider = () => {
+  const [categories, setCategories] = useState([]);
+  const router = useRouter();
+
   const sliderRef = useRef(null);
   const isDown = useRef(false);
   const startX = useRef(0);
   const scrollStart = useRef(0);
 
-  const infiniteStories = [...homeStories, ...homeStories, ...homeStories];
+  const infiniteStories = categories;
 
   useEffect(() => {
     const slider = sliderRef.current;
     if (!slider) return;
     slider.scrollLeft = slider.scrollWidth / 2;
+  }, []);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await fetch(`${API}/categories`);
+        const json = await res.json();
+        setCategories(json.data || []);
+      } catch (err) {
+        console.error("Failed to load categories", err);
+      }
+    }
+
+    fetchCategories();
   }, []);
 
   const onMouseDown = (e) => {
@@ -53,11 +71,16 @@ const TopSlider = () => {
       onMouseMove={onMouseMove}
     >
       {infiniteStories.map((story, idx) => (
-        <div className="story-item" key={`${story.id}-${idx}`}>
+        <div
+          className="story-item"
+          key={`${story._id}-${idx}`}
+          onClick={() => router.push(`/shop?category=${story._id}`)}
+          style={{ cursor: "pointer" }}
+        >
           <div className="story-image">
-            <img src={story.image} alt={story.label} />
+            <img src={story.image} alt={story.name} />
           </div>
-          <span className="story-label">{story.label}</span>
+          <span className="story-label">{story.name}</span>
         </div>
       ))}
     </div>

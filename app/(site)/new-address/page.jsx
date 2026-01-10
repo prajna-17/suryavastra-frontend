@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { getAddressKey } from "@/utils/address";
 
 import { ArrowLeft } from "lucide-react";
-import { roboto } from "@/app/fonts";
 
 export default function NewAddressPage() {
   const router = useRouter();
@@ -78,9 +77,7 @@ export default function NewAddressPage() {
   ${errors[field] ? "border-red-500 placeholder:text-red-400" : ""}`;
 
   return (
-    <div
-      className={`min-h-screen bg-white px-4 py-5 space-y-6 ${roboto.className}`}
-    >
+    <div className={`min-h-screen bg-white px-4 py-5 space-y-6 `}>
       {/* Back + Title */}
       <div className="flex items-center gap-3">
         <ArrowLeft

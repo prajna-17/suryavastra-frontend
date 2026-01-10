@@ -8,61 +8,78 @@ import { useEffect, useState } from "react";
 import { getUserIdFromToken } from "@/utils/auth";
 import { getAddressKey } from "@/utils/address";
 import { motion } from "framer-motion";
-import { useParams } from "next/navigation";
 
 export default function OrderConfirmPage() {
-  const { orderId } = useParams();
+  const [orderDate, setOrderDate] = useState(null);
+  const [deliveryRange, setDeliveryRange] = useState("");
 
   const router = useRouter();
+  const [ready, setReady] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const [orderNumber, setOrderNumber] = useState(null);
   const [today, setToday] = useState("");
-  const [mounted, setMounted] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [address, setAddress] = useState(null);
-
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!orderId) return;
+    // 🔊 sound
+    const audio = new Audio("/sounds/success.mp3");
+    audio.volume = 0.4;
+    audio.play().catch(() => {});
 
-    const fetchOrder = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+    // ✨ confetti
+    (async () => {
+      const confetti = (await import("canvas-confetti")).default;
+      confetti({
+        particleCount: 90,
+        spread: 70,
+        startVelocity: 28,
+        gravity: 0.6,
+        scalar: 1.1,
+        origin: { y: 0.45 },
+        colors: ["#f5c77a", "#e6b65c", "#cfa94a"],
+      });
+    })();
 
-        if (!res.ok) return;
+    // 🛒 order data
+    const checkoutProduct = localStorage.getItem("checkoutProduct");
+    setCartItems(checkoutProduct ? [JSON.parse(checkoutProduct)] : getCart());
 
-        const data = await res.json();
+    setOrderNumber(Math.floor(Math.random() * 9000000 + 1000000));
 
-        setCartItems(data.products);
-        setAddress(data.shippingAddress);
-        setOrderNumber(data.orderNumber);
+    const now = new Date();
 
-        setToday(
-          new Date(data.createdAt).toLocaleDateString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-          })
-        );
-      } catch (err) {
-        console.error(err);
-      }
-    };
+    setOrderDate(now);
 
-    fetchOrder();
-  }, [orderId]);
+    const start = new Date(now);
+    const end = new Date(now);
 
-  if (!mounted) return null;
+    start.setDate(start.getDate() + 7);
+    end.setDate(end.getDate() + 9);
+
+    const options = { day: "2-digit", month: "short" };
+    setDeliveryRange(
+      `${start.toLocaleDateString("en-US", options)} - ${end.toLocaleDateString(
+        "en-US",
+        options
+      )}`
+    );
+
+    setToday(
+      now.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      })
+    );
+
+    const storedAddress = localStorage.getItem(getAddressKey());
+    if (storedAddress) setAddress(JSON.parse(storedAddress));
+  }, []);
 
   const grandTotal = cartItems.reduce((t, i) => {
     const price = Number(i.price);
@@ -72,11 +89,31 @@ export default function OrderConfirmPage() {
   useEffect(() => {
     if (!cartItems.length) return;
 
-    const userId = getUserIdFromToken();
-    if (userId) {
-      localStorage.removeItem(`cart_${userId}`);
-    }
+    const timer = setTimeout(() => {
+      const userId = getUserIdFromToken();
+      if (userId) {
+        localStorage.removeItem(`cart_${userId}`);
+      }
+      localStorage.removeItem("checkoutProduct");
+    }, 1500); // wait for animation + render
+
+    return () => clearTimeout(timer);
   }, [cartItems]);
+  const getDeliveryRange = () => {
+    const start = new Date();
+    const end = new Date();
+
+    start.setDate(start.getDate() + 7);
+    end.setDate(end.getDate() + 9);
+
+    const options = { day: "2-digit", month: "short" };
+
+    return `${start.toLocaleDateString(
+      "en-US",
+      options
+    )} - ${end.toLocaleDateString("en-US", options)}`;
+  };
+  if (!mounted) return null;
 
   return (
     <div className={`min-h-screen bg-white ${roboto.className}`}>
@@ -161,7 +198,7 @@ export default function OrderConfirmPage() {
                 Expected Delivery
               </p>
               <p className="text-[14px] font-bold text-[#6b3430] mt-1 ml-[0.5px]">
-                21 - 23 Dec, 2025
+                {getDeliveryRange()}
               </p>
             </div>
           </div>
@@ -179,7 +216,13 @@ export default function OrderConfirmPage() {
                   Order Confirmed
                 </p>
                 <p className="text-[10px] text-gray-900 font-semibold mt-2">
-                  Dec 18, 2025 02:45 PM
+                  {orderDate?.toLocaleString("en-US", {
+                    month: "short",
+                    day: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </p>
               </div>
             </div>
@@ -196,7 +239,7 @@ export default function OrderConfirmPage() {
               <div className="-ml-[28px] w-6 h-6 rounded-full bg-gray-300"></div>
               <div>
                 <p className="text-[13px] text-gray-400">Delivered</p>
-                <p className="text-[10px] text-gray-500">21 - 23 Dec</p>
+                <p className="text-[10px] text-gray-500">{deliveryRange}</p>
               </div>
             </div>
           </div>

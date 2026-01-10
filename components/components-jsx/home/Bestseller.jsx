@@ -60,7 +60,9 @@ export default function BestSeller() {
           ))}
         </div>
 
-        <button className="view-all-button">View All</button>
+        <Link href="/shop">
+          <button className="view-all-button">View All</button>
+        </Link>
       </section>
 
       <section className="assurance-section">

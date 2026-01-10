@@ -5,23 +5,51 @@ import { FiChevronRight } from "react-icons/fi";
 import { rougeScript } from "@/app/fonts";
 import { robotoSlab } from "@/app/fonts";
 import { useEffect } from "react";
+import { useState } from "react";
+import { getAddressKey } from "@/utils/address";
 
-const menuItems = [
-  { name: "Availability", icon: "/img/available.png" },
-  { name: "Price", icon: "/img/price-tag.png" },
-  { name: "Product Type", icon: "/img/delivery-service.png" },
-  { name: "Fabric", icon: "/img/fabric.png" },
-  { name: "Colour", icon: "/img/color-palette.png" },
-  { name: "More", icon: "/img/menu.png" },
-  { name: "Gifting", icon: "/img/surprise.png" },
-  { name: "Help & Support", icon: "/img/customer-support.png" },
+const userMenuItems = [
+  {
+    name: "My Profile",
+    icon: "/img/profile.jpg",
+    path: "/profile",
+  },
+
+  {
+    name: "Order History",
+    icon: "/img/order-his.png",
+    path: "/order-his",
+  },
+  {
+    name: "Help & Support",
+    icon: "/img/help.png",
+    path: "/help-support",
+  },
 ];
 
 export default function SideMenu({ isOpen, onClose }) {
+  const [mounted, setMounted] = useState(false);
+
+  const [user, setUser] = useState(null);
+
   // stop background scroll when menu open
   useEffect(() => {
+    setMounted(true);
+
     document.body.style.overflow = isOpen ? "hidden" : "auto";
+
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      const userData = localStorage.getItem("user");
+
+      if (token && userData) {
+        setUser(JSON.parse(userData));
+      } else {
+        setUser(null);
+      }
+    }
   }, [isOpen]);
+  if (!mounted) return null;
 
   return (
     <>
@@ -61,7 +89,9 @@ export default function SideMenu({ isOpen, onClose }) {
             <p className={`text-[28px] italic ${rougeScript.className}`}>
               Hello
             </p>
-            <h2 className="text-3xl font-bold -mt-1">You !</h2>
+            <h2 className="text-3xl font-bold -mt-1">
+              {user ? user.name : "You"}!
+            </h2>
 
             <Image
               src="/img/stars.png"
@@ -71,28 +101,65 @@ export default function SideMenu({ isOpen, onClose }) {
               className="absolute top-4 right-4 opacity-90"
             />
 
-            <button className="bg-[#6b3430] text-white px-4 py-2 rounded-md mt-2 text-sm w-fit">
-              Login / Sign Up
-            </button>
+            {user ? (
+              <button
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  localStorage.removeItem(getAddressKey());
+
+                  window.dispatchEvent(new Event("cart-updated"));
+                  window.dispatchEvent(new Event("wishlist-updated"));
+
+                  window.location.href = "/";
+                }}
+                className="login-btn text-[#ffff] bg-[#6b3430] px-4 py-2 rounded-md mt-2 text-sm w-fit font-semibold"
+              >
+                Logout
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  localStorage.setItem("auth_intent", "LOGIN");
+                  window.location.href = "/auth";
+                }}
+                className="login-btn bg-[#6b3430] text-white px-4 py-2 rounded-md mt-2 text-sm w-fit"
+              >
+                Login / Sign Up
+              </button>
+            )}
           </div>
         </div>
 
         {/* Menu List */}
-        <div className={`flex flex-col gap-3 ${robotoSlab.className}`}>
-          {menuItems.map((item, idx) => (
-            <div
-              key={idx}
-              className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm 
-              border border-[#f1e5e4] active:scale-95 transition"
-            >
-              <div className="flex items-center gap-3">
-                <Image src={item.icon} alt={item.name} width={22} height={22} />
-                <span className="text-[#5c2d25] text-[14px]">{item.name}</span>
+        {/* Menu List */}
+        {user && (
+          <div className={`flex flex-col gap-3 ${robotoSlab.className}`}>
+            {userMenuItems.map((item, idx) => (
+              <div
+                key={idx}
+                onClick={() => {
+                  onClose();
+                  window.location.href = item.path;
+                }}
+                className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm 
+        border border-[#f1e5e4] active:scale-95 transition cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <Image
+                    src={item.icon}
+                    alt={item.name}
+                    width={22}
+                    height={22}
+                  />
+                  <span className="text-[#5c2d25] text-[14px]">
+                    {item.name}
+                  </span>
+                </div>
+                <FiChevronRight size={18} className="text-[#5c2d25]" />
               </div>
-              <FiChevronRight size={18} className="text-[#5c2d25]" />
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

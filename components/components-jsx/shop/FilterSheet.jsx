@@ -1,29 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { API } from "@/utils/api";
 
-export default function FilterSheet({
-  open,
-  onClose,
-  selectedCategory,
-  setSelectedCategory,
-}) {
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  async function fetchCategories() {
-    try {
-      const res = await fetch(`${API}/categories`);
-      const data = await res.json();
-      setCategories(data);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
+export default function FilterSheet({ open, onClose }) {
   if (!open) return null;
 
   return (
@@ -36,24 +14,6 @@ export default function FilterSheet({
         <div className="flex justify-between items-center mb-4 border-b">
           <h3 className="font-medium">Filters</h3>
           <button onClick={onClose}>✕</button>
-        </div>
-
-        {/* ⭐ CATEGORY FILTER */}
-        <div className="py-6 border-b text-sm">
-          <span className="font-medium">Category</span>
-
-          <select
-            className="w-full mt-2 border p-2 rounded"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">All</option>
-            {categories.map((c) => (
-              <option key={c._id} value={c._id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
         </div>
 
         {/* existing filters untouched */}

@@ -1,24 +1,24 @@
 "use client";
 import { roboto } from "@/app/fonts";
-import { API } from "@/utils/api";
 
-export default function SortSheet({ open, onClose, setProducts }) {
+export default function SortSheet({ open, onClose, products, setProducts }) {
   if (!open) return null;
 
-  async function sortProducts(type) {
-    const res = await fetch(`${API}/products`);
-    const data = await res.json();
-
-    let sorted = [...data];
+  function sortProducts(type) {
+    let sorted = [...products]; // copy, do NOT mutate
 
     if (type === "best") {
-      sorted = data.filter((p) => p.productSellingCategory === "best-selling");
+      sorted = sorted.filter(
+        (p) => p.productSellingCategory === "best-selling"
+      );
     }
+
     if (type === "low-high") {
-      sorted = data.sort((a, b) => a.price - b.price);
+      sorted.sort((a, b) => a.price - b.price);
     }
+
     if (type === "high-low") {
-      sorted = data.sort((a, b) => b.price - a.price);
+      sorted.sort((a, b) => b.price - a.price);
     }
 
     setProducts(sorted);

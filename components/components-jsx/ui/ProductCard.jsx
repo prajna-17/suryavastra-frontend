@@ -10,6 +10,7 @@ import {
   removeFromWishlist,
 } from "@/utils/wishlist";
 import { addToCart } from "@/utils/cart";
+import { requiredLogin } from "@/utils/requiredLogin";
 
 export default function ProductCard({
   id,
@@ -26,6 +27,8 @@ export default function ProductCard({
   console.log("HOME CARD ID:", id);
 
   function showToast(msg) {
+    console.log("TOAST:", msg); // 👈 ADD THIS
+
     const toast = document.createElement("div");
     toast.className = "wish-toast";
     toast.innerText = msg;
@@ -51,74 +54,71 @@ export default function ProductCard({
           <span className="absolute bottom-0 right-0 bg-[#6b3c32] text-white text-[10px] px-2 py-[3px] rounded-tl-md">
             {discount} OFF
           </span>
-
-          {/*Wishlist Button with animation + sound */}
-          <button
-            className="absolute top-2 right-2 bg-white w-7 h-7 flex items-center justify-center rounded-full shadow z-50"
-            style={{
-              color: liked ? "var(--color-dark-brown)" : "var(--color-brown)",
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-
-              if (liked) {
-                // REMOVE
-                removeFromWishlist(variantId);
-                setLiked(false);
-                showToast("Removed from Wishlist");
-              } else {
-                addToWishlistIfNotExists({
-                  variantId,
-                  productId: id,
-                  color,
-                  name,
-                  image,
-                  price,
-                  mrp: origPrice,
-                  discount,
-                });
-
-                +showToast(
-                  liked ? "Removed from Wishlist" : "Added to Wishlist"
-                );
-                // sound
-                const audio = new Audio("/sounds/pop.mp3");
-                audio.volume = 0.6;
-                audio.play();
-              }
-              // pop heart
-              const heart = document.createElement("div");
-              heart.innerHTML = "🤎";
-              heart.className = "pop-heart";
-              heart.style.position = "absolute";
-              heart.style.top = "-5px"; // jumps above
-              heart.style.right = "-5px";
-              heart.style.fontSize = "18px";
-              heart.style.zIndex = "9999";
-              e.currentTarget.appendChild(heart);
-              setTimeout(() => heart.remove(), 700);
-
-              // header bounce
-              document
-                .getElementById("wishlist-icon")
-                ?.classList.add("wishlist-bounce");
-              setTimeout(() => {
-                document
-                  .getElementById("wishlist-icon")
-                  ?.classList.remove("wishlist-bounce");
-              }, 600);
-
-              window.dispatchEvent(new Event("wishlist-updated"));
-            }}
-          >
-            <FiHeart
-              size={18}
-              fill={liked ? "var(--color-dark-brown)" : "none"}
-            />
-          </button>
         </div>
       </Link>
+
+      {/*Wishlist Button with animation + sound */}
+      <button
+        className="absolute top-2 right-2 bg-white w-7 h-7 flex items-center justify-center rounded-full shadow z-50"
+        style={{
+          color: liked ? "var(--color-dark-brown)" : "var(--color-brown)",
+        }}
+        onClick={(e) => {
+          if (!requiredLogin("Login to use wishlist")) return;
+
+          e.preventDefault();
+          e.stopPropagation();
+
+          if (liked) {
+            // REMOVE
+            removeFromWishlist(variantId);
+            setLiked(false);
+            showToast("Removed from Wishlist");
+          } else {
+            addToWishlistIfNotExists({
+              variantId,
+              productId: id,
+              color,
+              name,
+              image,
+              price,
+              mrp: origPrice,
+              discount,
+            });
+
+            showToast(liked ? "Removed from Wishlist" : "Added to Wishlist");
+            // sound
+            const audio = new Audio("/sounds/pop.mp3");
+            audio.volume = 0.6;
+            audio.play();
+          }
+          // pop heart
+          const heart = document.createElement("div");
+          heart.innerHTML = "🤎";
+          heart.className = "pop-heart";
+          heart.style.position = "absolute";
+          heart.style.top = "-5px"; // jumps above
+          heart.style.right = "-5px";
+          heart.style.fontSize = "18px";
+          heart.style.zIndex = "9999";
+          e.currentTarget.appendChild(heart);
+          setTimeout(() => heart.remove(), 700);
+
+          // header bounce
+          document
+            .getElementById("wishlist-icon")
+            ?.classList.add("wishlist-bounce");
+          setTimeout(() => {
+            document
+              .getElementById("wishlist-icon")
+              ?.classList.remove("wishlist-bounce");
+          }, 600);
+
+          window.dispatchEvent(new Event("wishlist-updated"));
+        }}
+      >
+        <FiHeart size={18} fill={liked ? "var(--color-dark-brown)" : "none"} />
+      </button>
 
       {/* Info */}
       <div className="p-[6px]">
@@ -136,6 +136,7 @@ export default function ProductCard({
         <button
           onClick={(e) => {
             e.stopPropagation();
+            if (!requiredLogin("Login to add items to cart")) return;
 
             addToCart({
               productId: id,
@@ -168,7 +169,7 @@ export default function ProductCard({
               }
             }, 600);
           }}
-          className="w-full border border-[#6b3c32] mt-2 py-1 text-[11px] rounded text-[#6b3c32]"
+          className="w-full h-[32px] border border-[#6b3c32] mt-2 flex items-center justify-center text-[11px] rounded text-[#6b3c32]"
         >
           ADD TO CART
         </button>

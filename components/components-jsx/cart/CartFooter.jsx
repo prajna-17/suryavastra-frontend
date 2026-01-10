@@ -28,14 +28,16 @@ export default function CartFooter() {
     const token = localStorage.getItem("token");
     localStorage.removeItem("checkoutProduct");
 
-    const profileComplete = localStorage.getItem("isProfileComplete");
-
     if (!token) {
-      router.push("/auth"); // not logged in
-    } else {
-      router.push("/order"); // logged in & existing user
+      // 🔑 IMPORTANT: tell app this is checkout login
+      localStorage.setItem("auth_intent", "CHECKOUT");
+      router.push("/auth");
+      return;
     }
+
+    router.push("/order");
   };
+
   return (
     <button
       disabled={cartCount === 0}
