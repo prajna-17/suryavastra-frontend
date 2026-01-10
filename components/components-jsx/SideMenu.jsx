@@ -79,7 +79,7 @@ export default function SideMenu({ isOpen, onClose }) {
         <div className="rounded-2xl relative shadow mt-10 mb-6 overflow-hidden">
           <Image
             src="/img/rectangle.png"
-            alt="hello-bg"
+            alt="rectangle"
             width={600}
             height={200}
             className="w-full h-[150px] object-cover"
