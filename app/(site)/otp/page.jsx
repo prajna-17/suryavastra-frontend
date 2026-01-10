@@ -215,9 +215,13 @@ export default function OtpPage() {
         <button
           disabled={verifying}
           onClick={handleVerifyOtp}
-          className="bg-[#6b3430] text-white w-[95%] mt-6 py-2 rounded-md font-semibold active:scale-95"
+          className={`bg-[#6b3430] text-white w-[95%] mt-6 py-2 rounded-md font-semibold
+    transition-transform duration-100
+    active:scale-90 active:translate-y-[2px]
+    ${verifying ? "opacity-60 cursor-not-allowed" : ""}
+  `}
         >
-          Verify OTP
+          {verifying ? "Verifying..." : "Verify OTP"}
         </button>
       </>
     </div>

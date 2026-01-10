@@ -80,9 +80,13 @@ export default function AuthPage() {
       <button
         disabled={sendingOtp}
         onClick={handleSendOtp}
-        className="bg-[#6b3430] text-white w-85 mt-6 py-2 rounded-md font-semibold active:scale-95"
+        className={`bg-[#6b3430] text-white w-85 mt-6 py-2 rounded-md font-semibold
+  transition-transform duration-100
+  active:scale-90 active:translate-y-[2px]
+  ${sendingOtp ? "opacity-60 cursor-not-allowed" : ""}
+`}
       >
-        Continue
+        {sendingOtp ? "Sending OTP..." : "Continue"}
       </button>
     </div>
   );
