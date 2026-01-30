@@ -95,8 +95,12 @@ function Header() {
           />
 
           {/* Logo */}
-          <Link href="/">
-            <img src="/img/logo.png" alt="Logo" className="h-8 w-[80px]" />
+          <Link href="/" className="flex-1 flex justify-center">
+            <img
+              src="/img/logo3.png"
+              alt="Logo"
+              className="w-[150px] object-contain"
+            />
           </Link>
 
           {/* Right Icons */}

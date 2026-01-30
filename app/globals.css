@@ -211,7 +211,8 @@
   pointer-events: none;
   z-index: 2;
 
-  background: radial-gradient(
+  background:
+    radial-gradient(
       ellipse at center,
       rgba(0, 0, 0, 0) 40%,
       rgba(100, 53, 51, 0.65) 100%
@@ -1524,7 +1525,9 @@
 
 /* Move to wishlist slide */
 .cart-item {
-  transition: transform 0.4s ease, opacity 0.4s ease;
+  transition:
+    transform 0.4s ease,
+    opacity 0.4s ease;
 }
 
 .cart-item.slide-wish {
@@ -2173,7 +2176,9 @@
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
   display: flex;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .product-card:hover {

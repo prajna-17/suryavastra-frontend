@@ -5,6 +5,7 @@ import Header from "@/components/components-jsx/Header";
 import Footer from "@/components/components-jsx/Footer";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import WhatsAppFloat from "@/components/components-jsx/WhatsAppFloat";
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -39,6 +40,8 @@ export default function SiteLayout({ children }) {
       <main>{children}</main>
 
       {pathname !== "/splash" && <Footer />}
+
+      {pathname !== "/splash" && <WhatsAppFloat />}
 
       <ToastContainer
         position="bottom-center"
