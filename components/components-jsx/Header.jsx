@@ -86,7 +86,7 @@ function Header() {
           Enjoy extra 10% off on your first purchase
         </div>
 
-        <div className="header-icons flex items-center justify-between px-4 py-3">
+        <div className="header-icons relative flex items-center justify-between px-4 py-7">
           {/* Menu */}
           <LuMenu
             size={26}
@@ -95,11 +95,11 @@ function Header() {
           />
 
           {/* Logo */}
-          <Link href="/" className="flex-1 flex justify-center">
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2">
             <img
-              src="/img/logo3.png"
+              src="/img/logo5.png"
               alt="Logo"
-              className="w-[150px] object-contain"
+              className="h-20 w-auto object-contain scale-[5]"
             />
           </Link>
 
