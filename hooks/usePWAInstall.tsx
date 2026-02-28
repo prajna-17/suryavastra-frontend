@@ -3,8 +3,16 @@ import { useEffect, useState } from "react";
 export function usePWAInstall() {
 	const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 	const [isInstallable, setIsInstallable] = useState(false);
+	const [isInstalled, setIsInstalled] = useState(false);
 
 	useEffect(() => {
+		// Detect installed mode (Android + Desktop)
+		const standalone =
+			window.matchMedia("(display-mode: standalone)").matches ||
+			(window.navigator as any).standalone === true; // iOS support
+
+		setIsInstalled(standalone);
+
 		const handler = (e: any) => {
 			e.preventDefault();
 			setDeferredPrompt(e);
@@ -13,23 +21,20 @@ export function usePWAInstall() {
 
 		window.addEventListener("beforeinstallprompt", handler);
 
-		return () => {
+		return () =>
 			window.removeEventListener("beforeinstallprompt", handler);
-		};
 	}, []);
 
 	const install = async () => {
 		if (!deferredPrompt) return;
-
 		deferredPrompt.prompt();
-		const { outcome } = await deferredPrompt.userChoice;
-
-		if (outcome === "accepted") {
-			setIsInstallable(false);
-		}
-
+		await deferredPrompt.userChoice;
 		setDeferredPrompt(null);
+		setIsInstallable(false);
 	};
 
-	return { install, isInstallable };
+	return {
+		install,
+		isInstallable: isInstallable && !isInstalled,
+	};
 }
