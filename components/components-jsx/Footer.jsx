@@ -3,7 +3,7 @@
 import { FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 // import { roboto, robotoSlab } from "@/app/fonts";
 import { useEffect, useState } from "react";
-
+import Link from "next/link";
 export default function Footer() {
   const [mounted, setMounted] = useState(false);
 
@@ -49,17 +49,29 @@ export default function Footer() {
             <li>International Shipping</li>
             <li>Payment Options</li>
             <li>Track Your Order</li>
-            <li>Returns</li>
+            <li>
+              <Link href="/policies" className="hover:underline">
+                Returns
+              </Link>
+            </li>
             <li>Find a Store</li>
           </ul>
         </div>
         <div className="links-col">
           <h3>Information</h3>
           <ul>
-            <li>Blog</li>
+            <li>
+              <Link href="/policies" className="hover:underline">
+                Policies
+              </Link>
+            </li>{" "}
             <li>Offers and More</li>
             <li>Help & FAQs</li>
-            <li>About Surya Vastra</li>
+            <li>
+              <Link href="/policies" className="hover:underline">
+                About Surya Vastra
+              </Link>
+            </li>{" "}
           </ul>
         </div>
       </div>
