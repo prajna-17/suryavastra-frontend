@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
+import { GoogleLogin } from "@react-oauth/google";
 export default function AuthPage() {
   const [sendingOtp, setSendingOtp] = useState(false);
 
@@ -21,7 +21,7 @@ export default function AuthPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -75,7 +75,34 @@ export default function AuthPage() {
         <span className="text-[#6b3430] underline"> Terms of Use </span>&
         <span className="text-[#6b3430] underline"> Privacy Policy</span>
       </p>
+      <div className="mt-6 w-85">
+        <GoogleLogin
+          onSuccess={async (credentialResponse) => {
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  credential: credentialResponse.credential,
+                }),
+              },
+            );
 
+            const data = await res.json();
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data));
+
+            window.location.href = "/";
+          }}
+          onError={() => {
+            console.log("Login Failed");
+          }}
+        />
+      </div>
       {/* Continue Button */}
       <button
         disabled={sendingOtp}
