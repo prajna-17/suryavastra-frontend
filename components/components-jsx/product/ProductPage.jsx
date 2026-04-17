@@ -372,7 +372,7 @@ export default function ProductPage({ product }) {
       )}
       <SimilarSection />
       <ProductAccordion product={product} /> <YouMayAlsoLike />
-      <CustomerReviewCarousel />
+      {/* <CustomerReviewCarousel /> */}
       <ShareModal
         open={shareOpen}
         onClose={() => setShareOpen(false)}
