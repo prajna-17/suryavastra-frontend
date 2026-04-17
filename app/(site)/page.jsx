@@ -14,7 +14,7 @@ const HomePage = () => {
       <FeaturedCollection />
       <BestSeller />
       <BudgetGrid />
-      <VideoBannerWithSlider />
+      {/* <VideoBannerWithSlider /> */}
       <Testimonials />
     </section>
   );
