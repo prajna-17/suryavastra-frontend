@@ -48,9 +48,6 @@ export default function ProductAccordion({ product }) {
         </div>
       ),
     },
-    { title: "MANUFACTURING INFORMATION", content: null },
-    { title: "RETURN & EXCHANGE POLICY", content: null },
-    { title: "FAQ’s", content: null },
   ];
 
   const toggleAccordion = (index) => {
