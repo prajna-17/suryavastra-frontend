@@ -53,7 +53,7 @@ export default function ProductPage({ product }) {
   const [liked, setLiked] = useState(false);
   const [message, setMessage] = useState(null);
   const [activeImages, setActiveImages] = useState(
-    allColorOptions[0]?.images || []
+    allColorOptions[0]?.images || [],
   );
   const [activeIndex, setActiveIndex] = useState(0);
   const [shareOpen, setShareOpen] = useState(false);
@@ -105,14 +105,13 @@ export default function ProductPage({ product }) {
   const discountedPrice = product.price;
   const off = product.oldPrice
     ? `${Math.round(
-        ((product.oldPrice - product.price) / product.oldPrice) * 100
+        ((product.oldPrice - product.price) / product.oldPrice) * 100,
       )}%`
     : "New";
 
   return (
     <section className="w-full max-w-[480px] mx-auto">
       <ProductSearch />
-
       {/* Image Slider */}
       <div
         className="relative w-full overflow-hidden rounded-xl"
@@ -152,7 +151,6 @@ export default function ProductPage({ product }) {
           ))}
         </div>
       </div>
-
       {/* Dots */}
       <div className="flex justify-center gap-2 py-3">
         {images.map((_, i) => (
@@ -165,7 +163,6 @@ export default function ProductPage({ product }) {
           />
         ))}
       </div>
-
       {/* Product Info */}
       <div className={`${roboto.className} px-4 pb-4`}>
         <div className="flex justify-between items-start">
@@ -250,11 +247,9 @@ export default function ProductPage({ product }) {
         </div>
         <p className="text-xs text-gray-500 mt-1">Inclusive of all taxes.</p>
       </div>
-
       <div className="mt-2 bg-[#f3e1dd] text-sm px-3 py-2 w-[95%] -ml-[-10px] rounded-md flex items-center gap-2 text-[#7a3e3e]">
         <FaBolt /> 515 bought in last 24 hours
       </div>
-
       {/* Colors */}
       <div className="mt-4 px-4">
         <p className="text-sm font-medium mb-2">
@@ -283,9 +278,7 @@ export default function ProductPage({ product }) {
           ))}
         </div>
       </div>
-
       <PromotionCards />
-
       {/* Action Buttons */}
       <div className="mt-6 px-4 flex gap-3">
         <button
@@ -360,7 +353,6 @@ export default function ProductPage({ product }) {
           </button>
         </div>
       </div>
-
       {showCartModal && (
         <div className={`added-bar show`}>
           <span className="close-icon" onClick={() => setShowCartModal(false)}>
@@ -378,10 +370,8 @@ export default function ProductPage({ product }) {
           </button>
         </div>
       )}
-
       <SimilarSection />
-      <ProductAccordion />
-      <YouMayAlsoLike />
+      <ProductAccordion product={product} /> <YouMayAlsoLike />
       <CustomerReviewCarousel />
       <ShareModal
         open={shareOpen}
@@ -389,7 +379,6 @@ export default function ProductPage({ product }) {
         productLink={productLink}
         showBottomMessage={showBottomMessage}
       />
-
       {message && (
         <div className="added-bar show">
           <div className="added-content">

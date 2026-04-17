@@ -37,7 +37,14 @@ const accordionData = [
       </div>
     ),
   },
-  { title: "DESCRIPTION", content: null },
+  {
+    title: "DESCRIPTION",
+    content: (
+      <div className="text-sm text-gray-900 leading-snug">
+        {product?.description || "No description available"}
+      </div>
+    ),
+  },
   { title: "MANUFACTURING INFORMATION", content: null },
   { title: "RETURN & EXCHANGE POLICY", content: null },
   { title: "FAQ’s", content: null },
