@@ -3,55 +3,55 @@
 import { useState } from "react";
 import { roboto } from "@/app/fonts";
 
-const accordionData = [
-  {
-    title: "PRODUCT DETAILS",
-    content: (
-      <div className="space-y-3.5 text-sm text-gray-900 leading-snug">
-        <p>
-          <b>Length:</b> 6.50 m (650 cm) which includes a 1.00 m (100 cm) blouse
-          piece
-        </p>
-        <p>
-          <b>Width:</b> 1.19 m (119.38 cm)
-        </p>
-        <p>
-          <b>Blouse Piece:</b> Yes
-        </p>
-        <p>
-          <b>Wash Care:</b> Dry wash
-        </p>
-        <p>
-          <b>Blouse:</b> The model is wearing size S of blouse.
-        </p>
-        <p>
-          <b>Fabric:</b> Zari
-        </p>
-        <p>
-          <b>Occasion:</b> Wedding Season or any season
-        </p>
-        <p className="space-y-3.5">
-          <b>Disclaimer:</b> The pictures are clicked in daylight. Colour may
-          vary slightly due to screen brightness.
-        </p>
-      </div>
-    ),
-  },
-  {
-    title: "DESCRIPTION",
-    content: (
-      <div className="text-sm text-gray-900 leading-snug">
-        {product?.description || "No description available"}
-      </div>
-    ),
-  },
-  { title: "MANUFACTURING INFORMATION", content: null },
-  { title: "RETURN & EXCHANGE POLICY", content: null },
-  { title: "FAQ’s", content: null },
-];
-
 export default function ProductAccordion({ product }) {
   const [openIndex, setOpenIndex] = useState(null);
+
+  const accordionData = [
+    {
+      title: "PRODUCT DETAILS",
+      content: (
+        <div className="space-y-3.5 text-sm text-gray-900 leading-snug">
+          <p>
+            <b>Length:</b> 6.50 m (650 cm) which includes a 1.00 m (100 cm)
+            blouse piece
+          </p>
+          <p>
+            <b>Width:</b> 1.19 m (119.38 cm)
+          </p>
+          <p>
+            <b>Blouse Piece:</b> Yes
+          </p>
+          <p>
+            <b>Wash Care:</b> Dry wash
+          </p>
+          <p>
+            <b>Blouse:</b> The model is wearing size S of blouse.
+          </p>
+          <p>
+            <b>Fabric:</b> Zari
+          </p>
+          <p>
+            <b>Occasion:</b> Wedding Season or any season
+          </p>
+          <p className="space-y-3.5">
+            <b>Disclaimer:</b> The pictures are clicked in daylight. Colour may
+            vary slightly due to screen brightness.
+          </p>
+        </div>
+      ),
+    },
+    {
+      title: "DESCRIPTION",
+      content: (
+        <div className="text-sm text-gray-900 leading-snug">
+          {product?.description || "No description available"}
+        </div>
+      ),
+    },
+    { title: "MANUFACTURING INFORMATION", content: null },
+    { title: "RETURN & EXCHANGE POLICY", content: null },
+    { title: "FAQ’s", content: null },
+  ];
 
   const toggleAccordion = (index) => {
     setOpenIndex(openIndex === index ? null : index);
