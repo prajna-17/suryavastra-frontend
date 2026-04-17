@@ -64,6 +64,12 @@ export default function Footer() {
               <Link href="/terms-and-conditions" className="hover:underline">
                 Terms and Conditions
               </Link>
+
+              <li>
+                <Link href="/privacy" className="hover:underline">
+                  Privacy Policy
+                </Link>
+              </li>
             </li>
           </ul>
         </div>
