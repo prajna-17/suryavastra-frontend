@@ -50,7 +50,7 @@ const accordionData = [
   { title: "FAQ’s", content: null },
 ];
 
-export default function ProductAccordion() {
+export default function ProductAccordion({ product }) {
   const [openIndex, setOpenIndex] = useState(null);
 
   const toggleAccordion = (index) => {
