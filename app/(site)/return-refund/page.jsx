@@ -46,23 +46,6 @@ const policies = [
       { icon: Clock, text: "Delays may occur in rare circumstances" },
     ],
   },
-  {
-    title: "Privacy Policy",
-    icon: ShieldCheck,
-    stat: "100%",
-    statLabel: "data safety",
-    items: [
-      { icon: Lock, text: "Personal data kept safe & confidential" },
-      { icon: Eye, text: "Never sold or shared with third parties" },
-      { icon: ShieldCheck, text: "Used only for orders & improvements" },
-      {
-        icon: CheckCircle2,
-        text: "Secure payment gateways for all transactions",
-      },
-      { icon: Sparkles, text: "Cookies used for a better experience" },
-      { icon: RotateCcw, text: "Request data deletion anytime" },
-    ],
-  },
 ];
 
 function useInView(threshold = 0.12) {
