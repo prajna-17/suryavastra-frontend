@@ -25,7 +25,10 @@ const policies = [
       { icon: Package, text: "Unused, unwashed & in original packaging" },
       { icon: CheckCircle2, text: "Customer-damaged items are not eligible" },
       { icon: ShieldCheck, text: "Refunds after thorough quality inspection" },
-      { icon: RotateCcw, text: "Credit within 5–7 business days" },
+      {
+        icon: RotateCcw,
+        text: "Approved Refunds will be processed and credited within 5-7 days",
+      },
       { icon: Lock, text: "Customised sarees are non-returnable" },
     ],
   },
@@ -235,7 +238,7 @@ function HeaderRule({ visible }) {
   );
 }
 
-export default function PoliciesPage() {
+export default function ReturnRefundPage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 60);

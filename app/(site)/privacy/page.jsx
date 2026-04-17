@@ -40,9 +40,9 @@ export default function PrivacyPolicy() {
         <Section title="1. Information We Collect">
           <b>a. Personal Information</b>
           <ul>
-            <li>Name</li>
-            <li>Email address</li>
-            <li>Phone number</li>
+            <li>Piyush Anand</li>
+            <li>suryavastra007@gmail.com</li>
+            <li>Phone number : +91 6387775297</li>
             <li>Shipping and billing address</li>
             <li>Payment details (processed securely)</li>
           </ul>

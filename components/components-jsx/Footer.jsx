@@ -51,7 +51,7 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/policies" className="hover:underline">
+              <Link href="/return-refund" className="hover:underline">
                 Return and Refunds
               </Link>
             </li>
