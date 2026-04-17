@@ -45,33 +45,26 @@ export default function Footer() {
         <div className="links-col">
           <h3>Useful Links</h3>
           <ul>
-            <li>Delivery Information</li>
-            <li>International Shipping</li>
-            <li>Payment Options</li>
-            <li>Track Your Order</li>
             <li>
-              <Link href="/policies" className="hover:underline">
-                Returns
+              <Link href="/contact-us" className="hover:underline">
+                Contact Us
               </Link>
             </li>
-            <li>Find a Store</li>
+            <li>
+              <Link href="/policies" className="hover:underline">
+                Return and Refunds
+              </Link>
+            </li>
           </ul>
         </div>
         <div className="links-col">
           <h3>Information</h3>
           <ul>
             <li>
-              <Link href="/policies" className="hover:underline">
-                Policies
+              <Link href="/terms-and-conditions" className="hover:underline">
+                Terms and Conditions
               </Link>
-            </li>{" "}
-            <li>Offers and More</li>
-            <li>Help & FAQs</li>
-            <li>
-              <Link href="/policies" className="hover:underline">
-                About Surya Vastra
-              </Link>
-            </li>{" "}
+            </li>
           </ul>
         </div>
       </div>
