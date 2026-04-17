@@ -32,6 +32,12 @@ const supportCards = [
     caption: "Crafted and packed with care before dispatch",
     icon: MapPin,
   },
+  {
+    title: "Contact Name",
+    value: "Piyush Anand",
+    caption: "Primary point of contact",
+    icon: MessageSquare,
+  },
 ];
 
 const reasons = [
