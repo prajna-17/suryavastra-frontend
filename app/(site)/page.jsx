@@ -9,7 +9,7 @@ import VideoBannerWithSlider from "@/components/components-jsx/home/VideoAndSlid
 const HomePage = () => {
   return (
     <section>
-      <TopSlider />
+      {/* <TopSlider /> */}
       <BannerSlider />
       <FeaturedCollection />
       <BestSeller />
