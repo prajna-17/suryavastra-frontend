@@ -91,7 +91,7 @@ export default function Footer() {
             style={{ color: "var(--color-dark-brown)" }}
           >
             <FaPhoneAlt className="help-icon" />
-            <span>+91 98765 432XX</span>
+            <span>+91 6387775297</span>
           </div>
 
           <div
