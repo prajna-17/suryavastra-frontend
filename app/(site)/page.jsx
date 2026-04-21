@@ -13,7 +13,7 @@ const HomePage = () => {
       <BannerSlider />
       <FeaturedCollection />
       <BestSeller />
-      <BudgetGrid />
+      {/* <BudgetGrid /> */}
       {/* <VideoBannerWithSlider /> */}
       {/* <Testimonials /> */}
     </section>
