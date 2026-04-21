@@ -131,7 +131,7 @@ function ShopContent() {
         </p>
       )}
 
-      <RecentlyViewed />
+      {/* <RecentlyViewed /> */}
 
       <FilterSheet open={showFilter} onClose={() => setShowFilter(false)} />
       <SortSheet
