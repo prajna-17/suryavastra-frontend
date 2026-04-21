@@ -87,7 +87,7 @@ function ShopContent() {
       </div>
 
       {/* Filter + Sort */}
-      <div
+      {/* <div
         className={`flex justify-between items-center px-4 py-3 ${roboto.className}`}
       >
         <p className="text-sm">{visibleProducts.length} Products</p>
@@ -107,7 +107,7 @@ function ShopContent() {
             <FiSliders size={14} /> Sort
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Products */}
       <div className="grid grid-cols-2 gap-3 px-3">
