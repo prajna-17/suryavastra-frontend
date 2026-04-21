@@ -281,6 +281,22 @@ export default function TermsAndConditionsPage() {
             use of the website after updates indicates acceptance of the revised
             terms.
           </p>
+
+          <p
+            style={{
+              margin: 0,
+              fontSize: 12.5,
+              color: "#7a5c59",
+              lineHeight: 1.58,
+            }}
+          >
+            Governing law: These Terms of Service and any separate agreements
+            where by we provide you Services shall be governed by and construed
+            in accordance with the federal and state or territorial courts in
+            the jurisdiction law of India. where Suryavastra is headquartered.
+            You and suryavastra consent to venue and personal jurisdiction in
+            such courts.
+          </p>
         </div>
       </div>
     </div>

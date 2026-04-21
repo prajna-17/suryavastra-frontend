@@ -370,7 +370,7 @@ export default function ProductPage({ product }) {
           </button>
         </div>
       )}
-      <SimilarSection />
+      {/* <SimilarSection /> */}
       <ProductAccordion product={product} />
       {/* <YouMayAlsoLike /> */}
       {/* <CustomerReviewCarousel /> */}
