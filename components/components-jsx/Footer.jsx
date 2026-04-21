@@ -106,12 +106,12 @@ export default function Footer() {
       </div>
 
       {/* Social Icons */}
-      <div className="footer-social">
+      {/* <div className="footer-social">
         <img src="/img/youtube.png" alt="YouTube" />
         <img src="/img/facebook.png" alt="Facebook" />
         <img src="/img/instagram.png" alt="Instagram" />
         <img src="/img/pinterest.png" alt="Pinterest" />
-      </div>
+      </div> */}
     </footer>
   );
 }
