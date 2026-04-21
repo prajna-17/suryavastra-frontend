@@ -39,8 +39,13 @@ export default function AdminProducts() {
   };
 
   const confirmDelete = async () => {
+    const token = localStorage.getItem("token");
+
     const res = await fetch(`${API}/products/${deleteId}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (res.ok) {
