@@ -371,7 +371,8 @@ export default function ProductPage({ product }) {
         </div>
       )}
       <SimilarSection />
-      <ProductAccordion product={product} /> <YouMayAlsoLike />
+      <ProductAccordion product={product} />
+      {/* <YouMayAlsoLike /> */}
       {/* <CustomerReviewCarousel /> */}
       <ShareModal
         open={shareOpen}
