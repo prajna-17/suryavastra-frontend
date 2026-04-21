@@ -16,9 +16,9 @@ export default function ProductSearch() {
       </div>
 
       {/* Breadcrumb */}
-      <p className={`${roboto.className} text-xs  mt-3`}>
+      {/* <p className={`${roboto.className} text-xs  mt-3`}>
         Home &gt; Saree &gt; Lorem
-      </p>
+      </p> */}
     </div>
   );
 }
