@@ -1,17 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { roboto } from "@/app/fonts";
 import { getCart } from "@/utils/cart";
 import { useEffect, useState } from "react";
-import { robotoSlab } from "@/app/fonts";
 import { getAddressKey } from "@/utils/address";
 
 export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState("ONLINE");
 
   useEffect(() => {
     setMounted(true);
@@ -41,10 +40,14 @@ export default function CheckoutPage() {
   const discount = mrpTotal - grandTotal;
 
   const handleCOD = async () => {
+    if (isPaying) return;
+
+    setIsPaying(true);
     const rawAddress = JSON.parse(localStorage.getItem(getAddressKey()));
 
     if (!rawAddress) {
       alert("Please add delivery address before proceeding");
+      setIsPaying(false);
       return;
     }
 
@@ -80,6 +83,7 @@ export default function CheckoutPage() {
 
       if (!res.ok) {
         alert("Unable to place COD order");
+        setIsPaying(false);
         return;
       }
 
@@ -89,10 +93,12 @@ export default function CheckoutPage() {
         router.push(`/order-confirm/${data.data.orderId}`);
       } else {
         alert(data.message || "COD failed");
+        setIsPaying(false);
       }
     } catch (err) {
       console.error(err);
       alert("Something went wrong");
+      setIsPaying(false);
     }
   };
 
@@ -102,11 +108,20 @@ export default function CheckoutPage() {
     setIsPaying(true);
     const rawAddress = JSON.parse(localStorage.getItem(getAddressKey()));
 
-    if (!rawAddress) {
-      alert("Please add delivery address before proceeding");
-      setIsPaying(false);
+
+  const handlePlaceOrder = () => {
+    if (selectedMethod === "COD") {
+      handleCOD();
       return;
     }
+
+    handlePayment();
+  };
+    if (!rawAddress) {
+      alert("Please add delivery address before proceeding");
+    <div className={`min-h-screen bg-[#f8f3f1] px-4 py-6 pb-28 ${roboto.className}`}>
+      return;
+      <div className="flex items-center gap-3 mb-5">
 
     const shippingAddress = {
       fullName: rawAddress.name,
@@ -116,86 +131,109 @@ export default function CheckoutPage() {
       city: rawAddress.city,
       state: rawAddress.state,
       postalCode: rawAddress.pincode,
-    };
-
-    if (!shippingAddress) {
-      alert("Please add delivery address before proceeding");
+      <div className="bg-white rounded-2xl border border-[#e9d7d4] p-4 mb-5 shadow-sm">
+        <div className="flex items-center justify-between text-sm mb-2">
+          <span className="text-gray-600">Items Total</span>
+          <span>₹ {mrpTotal.toLocaleString("en-IN")}</span>
+        </div>
+        <div className="flex items-center justify-between text-sm mb-2">
+          <span className="text-gray-600">Discount</span>
+          <span className="text-green-700">- ₹ {discount.toLocaleString("en-IN")}</span>
+        </div>
+        <div className="flex items-center justify-between text-sm mb-3">
+          <span className="text-gray-600">Delivery</span>
+          <span>FREE</span>
+        </div>
+        <div className="border-t border-[#efe2df] pt-3 flex items-center justify-between">
+          <span className="font-semibold text-[#6b3430]">Amount To Pay</span>
+          <span className="font-semibold text-[#6b3430] text-lg">₹ {grandTotal.toLocaleString("en-IN")}</span>
+        </div>
+      </div>
       setIsPaying(false);
-      return;
-    }
-
-    try {
-      // 1) Create pending order
+      <h3 className="font-semibold text-sm text-[#251615] mb-3">Select Payment Method</h3>
       const orderRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/orders/create-pending`,
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={() => setSelectedMethod("ONLINE")}
+          className={`w-full rounded-xl p-4 text-left border transition ${
+            selectedMethod === "ONLINE"
+              ? "border-[#6b3430] bg-[#fffaf8]"
+              : "border-[#e6d4d1] bg-white"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-[#2f1b19]">Online Payment (PhonePe)</p>
+              <p className="text-xs text-gray-600 mt-1">
+                UPI, Cards, Net Banking and Wallets will be shown on PhonePe gateway.
+              </p>
+            </div>
+            <span
+              className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                selectedMethod === "ONLINE"
+                  ? "border-[#6b3430]"
+                  : "border-[#cbb1ad]"
+              }`}
+            >
+              {selectedMethod === "ONLINE" && (
+                <span className="w-2.5 h-2.5 rounded-full bg-[#6b3430]" />
+              )}
+            </span>
+          </div>
+        </button>
 
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            products: cartItems.map((item) => ({
-              product: item.productId,
-              quantity: item.qty ?? item.quantity ?? 1,
+        <button
+          type="button"
+          onClick={() => setSelectedMethod("COD")}
+          className={`w-full rounded-xl p-4 text-left border transition ${
+            selectedMethod === "COD"
+              ? "border-[#6b3430] bg-[#fffaf8]"
+              : "border-[#e6d4d1] bg-white"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-[#2f1b19]">Cash On Delivery</p>
+              <p className="text-xs text-gray-600 mt-1">
+                Pay in cash at the time of delivery.
+              </p>
+            </div>
+            <span
+              className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                selectedMethod === "COD"
+                  ? "border-[#6b3430]"
+                  : "border-[#cbb1ad]"
+              }`}
+            >
+              {selectedMethod === "COD" && (
+                <span className="w-2.5 h-2.5 rounded-full bg-[#6b3430]" />
+              )}
+            </span>
+          </div>
+        </button>
+      </div>
+
+      <div className="mt-4 bg-white rounded-xl border border-[#e9d7d4] px-4 py-3 text-xs text-gray-600">
+        {selectedMethod === "ONLINE" ? (
+          <span>
+            You will be redirected to PhonePe to complete payment securely.
             })),
-            shippingAddress, // ✅ SEND AS-IS
-          }),
+        ) : (
+          <span>Your order will be placed now and payment will happen at delivery.</span>
+        )}
         },
       );
-
-      // ✅ HTTP-level check (CRITICAL)
-      if (!orderRes.ok) {
-        alert("Unable to create order");
-        setIsPaying(false);
         return;
-      }
-
-      const orderData = await orderRes.json();
-
-      if (orderData.status !== "ok") {
-        alert(orderData.message || "Unable to create order");
-        setIsPaying(false);
-        return;
-      }
-
-      const { orderId } = orderData.data;
-
-      // 2) Initiate PhonePe and redirect user
-      const paymentRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/payment/initiate`,
-
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            orderId,
-          }),
-        },
-      );
-
-      if (!paymentRes.ok) {
-        alert("Unable to initiate payment");
-        setIsPaying(false);
-        return;
-      }
-
-      const paymentData = await paymentRes.json();
-
-      const gatewayData = paymentData?.data;
-      if (!paymentData?.success || !gatewayData?.redirectUrl) {
-        alert(paymentData?.message || "Payment gateway is not ready");
-        setIsPaying(false);
-        return;
-      }
+        onClick={handlePlaceOrder}
 
       window.location.href = gatewayData.redirectUrl;
     } catch (err) {
-      console.error(err);
+        {isPaying
+          ? "Processing..."
+          : selectedMethod === "COD"
+            ? "Place Order (COD)"
+            : "Pay Online"}
       alert("Something went wrong");
       setIsPaying(false);
     }
