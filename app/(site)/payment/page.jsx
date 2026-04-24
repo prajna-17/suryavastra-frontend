@@ -11,6 +11,7 @@ import { getAddressKey } from "@/utils/address";
 
 export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -74,7 +75,7 @@ export default function CheckoutPage() {
             shippingAddress,
             paymentMethod: "COD",
           }),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -96,10 +97,14 @@ export default function CheckoutPage() {
   };
 
   const handlePayment = async () => {
+    if (isPaying) return;
+
+    setIsPaying(true);
     const rawAddress = JSON.parse(localStorage.getItem(getAddressKey()));
 
     if (!rawAddress) {
       alert("Please add delivery address before proceeding");
+      setIsPaying(false);
       return;
     }
 
@@ -115,11 +120,12 @@ export default function CheckoutPage() {
 
     if (!shippingAddress) {
       alert("Please add delivery address before proceeding");
+      setIsPaying(false);
       return;
     }
 
     try {
-      // 1️⃣ Create pending order
+      // 1) Create pending order
       const orderRes = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/orders/create-pending`,
 
@@ -136,12 +142,13 @@ export default function CheckoutPage() {
             })),
             shippingAddress, // ✅ SEND AS-IS
           }),
-        }
+        },
       );
 
       // ✅ HTTP-level check (CRITICAL)
       if (!orderRes.ok) {
         alert("Unable to create order");
+        setIsPaying(false);
         return;
       }
 
@@ -149,12 +156,13 @@ export default function CheckoutPage() {
 
       if (orderData.status !== "ok") {
         alert(orderData.message || "Unable to create order");
+        setIsPaying(false);
         return;
       }
 
-      const { amount, merchantTransactionId } = orderData.data;
+      const { orderId } = orderData.data;
 
-      // 2️⃣ Initiate PhonePe payment
+      // 2) Initiate PhonePe and redirect user
       const paymentRes = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/payment/initiate`,
 
@@ -162,25 +170,34 @@ export default function CheckoutPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({
-            amount,
-            merchantTransactionId,
+            orderId,
           }),
-        }
+        },
       );
+
+      if (!paymentRes.ok) {
+        alert("Unable to initiate payment");
+        setIsPaying(false);
+        return;
+      }
 
       const paymentData = await paymentRes.json();
 
-      if (paymentData?.data?.data?.instrumentResponse?.redirectInfo?.url) {
-        window.location.href =
-          paymentData.data.data.instrumentResponse.redirectInfo.url;
-      } else {
-        alert("Payment not ready yet (KYC pending)");
+      const gatewayData = paymentData?.data;
+      if (!paymentData?.success || !gatewayData?.redirectUrl) {
+        alert(paymentData?.message || "Payment gateway is not ready");
+        setIsPaying(false);
+        return;
       }
+
+      window.location.href = gatewayData.redirectUrl;
     } catch (err) {
       console.error(err);
       alert("Something went wrong");
+      setIsPaying(false);
     }
   };
 
@@ -264,6 +281,7 @@ export default function CheckoutPage() {
         </div>
         <button
           onClick={handleCOD}
+          disabled={isPaying}
           className="w-full border border-[#833630] rounded-lg p-3 mt-6 font-medium"
         >
           Cash on Delivery (COD)
@@ -273,9 +291,10 @@ export default function CheckoutPage() {
       {/* Pay Now */}
       <button
         onClick={handlePayment}
-        className="fixed bottom-4 left-4 right-4 bg-[#6b3430] text-white py-3 rounded-md font-semibold active:scale-95"
+        disabled={isPaying}
+        className="fixed bottom-4 left-4 right-4 bg-[#6b3430] text-white py-3 rounded-md font-semibold active:scale-95 disabled:opacity-70"
       >
-        Pay Now
+        {isPaying ? "Processing..." : "Pay Now"}
       </button>
     </div>
   );
