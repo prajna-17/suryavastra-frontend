@@ -167,7 +167,11 @@ export default function CheckoutPage() {
         !paymentData?.success ||
         !paymentData?.data?.redirectUrl
       ) {
-        alert(paymentData?.message || "Payment gateway is not ready");
+        alert(
+          paymentData?.hint
+            ? `${paymentData?.message || "Payment gateway is not ready"}\n\n${paymentData.hint}`
+            : paymentData?.message || "Payment gateway is not ready",
+        );
         setIsPaying(false);
         return;
       }

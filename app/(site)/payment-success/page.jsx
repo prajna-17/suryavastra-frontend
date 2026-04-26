@@ -26,30 +26,45 @@ function PaymentSuccessContent() {
       }
 
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/payment/verify`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+        for (let attempt = 0; attempt < 5; attempt += 1) {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/payment/verify`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                orderId,
+                merchantTransactionId,
+              }),
             },
-            body: JSON.stringify({
-              orderId,
-              merchantTransactionId,
-            }),
-          },
-        );
+          );
 
-        const data = await res.json();
+          const data = await res.json();
 
-        if (res.ok && data?.success) {
-          setMessage("Payment verified. Redirecting to order confirmation...");
-          router.replace(`/order-confirm/${orderId}`);
+          if (res.ok && data?.success) {
+            setMessage(
+              "Payment verified. Redirecting to order confirmation...",
+            );
+            router.replace(`/order-confirm/${orderId}`);
+            return;
+          }
+
+          if (res.status === 202) {
+            setMessage("Payment is being confirmed. Please wait...");
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            continue;
+          }
+
+          setMessage(data?.message || "Payment verification failed.");
           return;
         }
 
-        setMessage(data?.message || "Payment verification failed.");
+        setMessage(
+          "Payment is still being confirmed. Please check your order history in a moment.",
+        );
       } catch (error) {
         console.error(error);
         setMessage(
